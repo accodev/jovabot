@@ -1,4 +1,4 @@
-ciao
+﻿ciao
 saluti
 buongiorno
 buonanotte

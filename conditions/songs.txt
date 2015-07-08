@@ -1,2 +1,2 @@
-canta
+﻿canta
 una canzone

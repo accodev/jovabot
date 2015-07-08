@@ -11,8 +11,8 @@ jova_il_mondo = [ "Male...",
 
 
 tb = None
-phrases_list = None
-conditions_list = None
+phrases_list = {}
+conditions_list = {}
 
 def extract_token(filename):
     t = open(filename, "r")
@@ -28,9 +28,13 @@ def listener(*messages):
         chat_id = msg.chat.id
         if msg.content_type == 'text':
             if 'jova' in msg.text.lower(): #invocato il dio supremo
-                answer = jova_answer(msg.text.lower())
+                #answer = jova_answer(msg.text.lower())
+                answer = jova_answer_new(msg.text.lower())
                 if answer:
-                    answer_decoded = answer.decode('utf-8')
+                    try:
+                        answer_decoded = answer.decode('utf-8')
+                    except UnicodeDecodeError as e:
+                        answer_decoded = answer
                     tb.send_chat_action(chat_id, 'typing')
                     words_count = count_words(answer_decoded)
                     words_per_sec = 0.32
@@ -62,6 +66,16 @@ def jova_answer(message):
     return jova_message
 
 
+def jova_answer_new(message):
+    plain_message = ""
+    for condition_file in conditions_list:
+        cond = conditions_list.get(condition_file)
+        if any(condition in message for condition in cond):
+            phrase = phrases_list.get(condition_file)
+            plain_message = random.choice(phrase)
+            break
+    return plain_message
+
 def read_jova_phrases():
     global swearing_phrases
     with open("phrases/swearing.txt", "r") as swearing_file:
@@ -83,28 +97,19 @@ def read_jova_phrases():
 def read_jova_phrases_new():
     global phrases_list
 
-    onlyfiles = [ f for f in listdir("/phrases/") if isfile(join("/phrases/",f)) ]
+    onlyfiles = [ f for f in listdir("phrases/") if isfile(join("phrases/",f)) ]
     for file in onlyfiles:
-        with open(file) as f:
-            phrases_list[file] = f
+        with open('phrases/' + file) as f:
+            phrases_list[file] = f.read().splitlines()
 
-    with open("phrases/swearing.txt", "r") as swearing_file:
-        swearing_phrases = swearing_file.read().splitlines()
-
-    global social_phrases
-    with open("phrases/social.txt", "r") as swearing_file:
-        social_phrases = swearing_file.read().splitlines()
-
-    global proverb_phrases
-    with open("phrases/proverbs.txt", "r") as swearing_file:
-        proverb_phrases = swearing_file.read().splitlines()
-
-    global song_phrases
-    with open("phrases/songs.txt", "r") as swearing_file:
-        song_phrases = swearing_file.read().splitlines()
 
 def read_jova_conditions():
-    pass
+    global conditions_list
+
+    onlyfiles = [ f for f in listdir("conditions/") if isfile(join("conditions/",f)) ]
+    for file in onlyfiles:
+        with open('conditions/' + file) as f:
+            conditions_list[file] = f.read().splitlines()
 
 
 def count_words(phrase):
@@ -113,7 +118,9 @@ def count_words(phrase):
 
 def main():
     token = extract_token("key.token")
-    read_jova_phrases()
+    #read_jova_phrases()
+    read_jova_phrases_new()
+    read_jova_conditions()
     global tb
     tb = telebot.TeleBot(token)
     tb.set_update_listener(listener)
