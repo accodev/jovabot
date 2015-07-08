@@ -1,0 +1,4 @@
+ciao
+saluti
+buongiorno
+buonanotte
