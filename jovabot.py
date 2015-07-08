@@ -37,7 +37,7 @@ def listener(*messages):
                         answer_decoded = answer
                     tb.send_chat_action(chat_id, 'typing')
                     words_count = count_words(answer_decoded)
-                    words_per_sec = 0.32
+                    words_per_sec = 0.08
                     time_to_write = words_count * words_per_sec
                     #print "word count {0} -> time to write {1} at {2} words per second".format(words_count, time_to_write, words_per_sec)
                     time.sleep(time_to_write)
@@ -62,7 +62,7 @@ def jova_answer(message):
         plain_message = random.choice(proverb_phrases).lower()
     elif 'come va il mondo' in message:
         plain_message = random.choice(jova_il_mondo).lower()
-    jova_message = plain_message.replace('s', 'f').replace('x', 'f')
+    jova_message = plain_message.lower().replace('s', 'f').replace('x', 'f')
     return jova_message
 
 
@@ -74,7 +74,8 @@ def jova_answer_new(message):
             phrase = phrases_list.get(condition_file)
             plain_message = random.choice(phrase)
             break
-    return plain_message
+    jova_answer = plain_message.replace('s', 'f').replace('x', 'f')
+    return jova_answer
 
 def read_jova_phrases():
     global swearing_phrases
