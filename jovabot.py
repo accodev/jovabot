@@ -18,13 +18,14 @@ def extract_token(filename):
     return token
 
 
+# @telebot.async()
 def listener(*messages):
     # When new messages arrive TeleBot will call this function.
     print "message arrived"
     for m in messages:
         if m[0].content_type == 'text':
-            msg = m[0] # perche'? 
-            if 'jova' in msg.text.lower(): #invocato il dio supremo
+            msg = m[0]  # perche'?
+            if 'jova' in msg.text.lower():  # invocato il dio supremo
                 print "jova they are searching for you!"
                 chat_id = msg.chat.id
                 answer = jova_answer(msg.text.lower())
@@ -33,13 +34,12 @@ def listener(*messages):
                     words_count = count_words(answer)
                     words_per_sec = 600
                     time_to_write = words_count / words_per_sec
-                    #print "word count {0} -> time to write {1} at {2} words per second".format(words_count, time_to_write, words_per_sec)
+                    # print "word count {0} -> time to write {1} at {2} words per second".format(words_count, time_to_write, words_per_sec)
                     time.sleep(time_to_write)
                     tb.send_message(chat_id, answer)
 
 
 def jova_answer(message):
-    answer = ""
     if 'help' in message:
         answer = jova_help()
     else:
@@ -55,8 +55,9 @@ def jova_answer_conditions(message):
             phrase = phrases_list.get(condition_file)
             plain_message = random.choice(phrase)
             break
-    jova_answer = plain_message.lower().replace('s', 'f').replace('x', 'f')
+    jova_answer = plain_message.lower().replace('s', 'f').replace('x', 'f').replace('x', 'f')
     return jova_answer
+
 
 def jova_help():
     plain_message = ""
@@ -71,12 +72,13 @@ def jova_help():
         plain_message += '--------\n'
     return plain_message
 
+
 def read_jova_phrases():
     global phrases_list
 
     print "start reading jova phrases..."
 
-    onlyfiles = [ f for f in listdir("phrases/") if isfile(join("phrases/",f)) ]
+    onlyfiles = [f for f in listdir("phrases/") if isfile(join("phrases/", f))]
     for file in onlyfiles:
         with open('phrases/' + file) as f:
             phrases_list[file] = f.read().splitlines()
@@ -88,7 +90,7 @@ def read_jova_conditions():
 
     print "start reading jova conditions..."
 
-    onlyfiles = [ f for f in listdir("conditions/") if isfile(join("conditions/",f)) ]
+    onlyfiles = [f for f in listdir("conditions/") if isfile(join("conditions/", f))]
     for file in onlyfiles:
         with open('conditions/' + file) as f:
             conditions_list[file] = f.read().splitlines()
@@ -104,12 +106,13 @@ def main():
     read_jova_phrases()
     token = extract_token("key.token")
     global tb
-    tb = telebot.TeleBot(token)
+    tb = telebot.TeleBot(token, True, 8)
+    # tb = telebot.AsyncTeleBot(token)
     tb.set_update_listener(listener)
     tb.polling()
 
     while True:
-        time.sleep(0.05)
+        time.sleep(0)
 
 
 if __name__ == '__main__':
