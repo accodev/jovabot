@@ -38,7 +38,7 @@ def listener(*messages):
                     time_to_write = words_count / words_per_sec
                     # print "word count {0} -> time to write {1} at {2} words per second".format(words_count, time_to_write, words_per_sec)
                     time.sleep(time_to_write)
-                    tb.send_message(chat_id, answer)
+                    tb.send_message(chat_id, answer, reply_to_message_id=msg.message_id)
 
 
 def jova_answer(message):
@@ -150,7 +150,7 @@ def read_jova_phrases():
 
     onlyfiles = [f for f in listdir("phrases/") if isfile(join("phrases/", f))]
     for file in onlyfiles:
-        with open('phrases/' + file) as f:
+        with open('phrases/' + file, encoding="utf-8") as f:
             phrases_list[file] = f.read().splitlines()
             print("\t{0} read ->\tlines {1}".format(file, len(phrases_list[file])))
 
@@ -162,7 +162,7 @@ def read_jova_conditions():
 
     onlyfiles = [f for f in listdir("conditions/") if isfile(join("conditions/", f))]
     for file in onlyfiles:
-        with open('conditions/' + file) as f:
+        with open('conditions/' + file, encoding="utf-8") as f:
             conditions_list[file] = f.read().splitlines()
             print("\t{0} read ->\tlines {1}".format(file, len(conditions_list[file])))
 
