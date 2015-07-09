@@ -1,4 +1,1 @@
-ciao
-saluti
-buongiorno
-buonanotte
+greetings
