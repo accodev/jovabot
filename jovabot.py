@@ -2,6 +2,7 @@
 import telebot
 import oroscopy
 import random
+import re
 import time
 from os import listdir
 from os.path import isfile, join
@@ -10,7 +11,7 @@ from os.path import isfile, join
 tb = None
 phrases_list = {}
 conditions_list = {}
-
+learned = {}
 
 def extract_token(filename):
     t = open(filename, "r")
@@ -45,10 +46,30 @@ def jova_answer(message):
         answer = jova_help()
     elif 'oroscopo' in message:
         answer = jova_oroscopo(message)
+    elif 'se ti dico' in message:
+        answer = jova_learn(message)
     else:
-        answer = jova_answer_conditions(message)
+        answer = jova_answer_learned(message) or jova_answer_conditions(message)
     return answer
 
+
+def jova_answer_learned(message):
+    rx = r'jova,?\s(.+)$'
+    m = re.match(rx, message)
+    if not m:
+        return None
+
+    try:
+        k = m.groups(1)[0]
+        print('search for', k)
+        if k in learned:
+            v = jova_replace(learned[k])
+            print('answer learned message', v)
+            return v
+    except:
+        pass
+
+    return None
 
 def jova_answer_conditions(message):
     plain_message = ""
@@ -66,11 +87,11 @@ def jova_help():
     plain_message = ""
     print("printing help...")
     for condition_file in conditions_list:
-        print("printing conditions for {0} ->").format(condition_file)
+        print("printing conditions for {0} ->".format(condition_file))
         plain_message += condition_file + '\n'
         conditions = conditions_list.get(condition_file)
         for condition in conditions:
-            print("\t{0}").format(condition)
+            print("\t{0}".format(condition))
             plain_message += '\t' + condition + '\n'
         plain_message += '--------\n'
     return plain_message
@@ -105,6 +126,22 @@ def jova_oroscopo(message):
         out += '{0}\n{1}\n'.format(o.sign, o.text)
 
     return jova_replace(out)
+
+def jova_learn(message):
+    global learned
+
+    rx = r'jova,?\sse ti (?:dico|dicono)\s([\w\s\?\!]+)\stu rispondi\s([\w\s\?\!]+)'
+    m = re.match(rx, message)
+
+    if not m:
+        print('mismatch', message)
+        return None
+
+    tokens = m.groups(1)
+    if len(tokens) == 2:
+        learned[tokens[0]] = tokens[1]
+        return 'OK'
+    return jova_replace('mi sa che non ho capito')
 
 def read_jova_phrases():
     global phrases_list
