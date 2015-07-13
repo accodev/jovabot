@@ -1,0 +1,3 @@
+﻿Ciao %name%!
+Come va %name%!
+Buongiorno %name%!
