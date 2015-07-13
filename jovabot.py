@@ -1,6 +1,7 @@
 # coding=utf-8
 import telebot
 import oroscopy
+import paginebianche
 import random
 import re
 import time
@@ -48,6 +49,8 @@ def jova_answer(message):
         answer = jova_oroscopo(message)
     elif 'se ti dico' in message:
         answer = jova_learn(message)
+    elif 'cerca' in message:
+        answer = jova_paginebianche(message)
     else:
         answer = jova_answer_learned(message) or jova_answer_conditions(message)
     return answer
@@ -70,6 +73,7 @@ def jova_answer_learned(message):
         pass
 
     return None
+
 
 def jova_answer_conditions(message):
     plain_message = ""
@@ -106,6 +110,7 @@ def jova_replace(s):
     .replace('X', 'F') \
     .replace('Z', 'F')
 
+
 def jova_oroscopo(message):
 
     signes = [
@@ -127,6 +132,7 @@ def jova_oroscopo(message):
 
     return jova_replace(out)
 
+
 def jova_learn(message):
     global learned
 
@@ -141,6 +147,31 @@ def jova_learn(message):
     if len(tokens) == 2:
         learned[tokens[0]] = tokens[1]
         return 'OK'
+    return jova_replace('mi sa che non ho capito')
+
+
+def jova_paginebianche(message):
+    rx = r'jova,?\s(?:cerca|cercami|trova|trovami|paginebianche)\s([\w\s]+)\s(?:a|ad|in)\s([\w\s]+)'
+    m = re.match(rx, message)
+
+    if not m:
+        print('mismatch', message)
+        return None
+
+    tokens = m.groups(1)
+    if len(tokens) == 2:
+
+        found = False
+        out = 'ho trovato:\n'
+        for o in paginebianche.search_wp(tokens[0], tokens[1]):
+            out += "{0} tel: {1}\n{2}\n\n".format(o.name, o.tel, o.addr)
+            found = True
+
+        if not found:
+            return jova_answer_conditions("insulta")
+
+        return jova_replace(out)
+
     return jova_replace('mi sa che non ho capito')
 
 def read_jova_phrases():
