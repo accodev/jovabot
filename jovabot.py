@@ -92,7 +92,7 @@ def main():
     tb = telebot.TeleBot(token, True, 4)
     # tb = telebot.AsyncTeleBot(token)
     tb.set_update_listener(listener)
-    tb.polling()
+    tb.polling(interval=2)
 
     while True:
         time.sleep(0)
