@@ -10,6 +10,7 @@ ENABLED_MODULES = [
 'modules.addressbook',
 'modules.learn',
 'modules.random',
+'modules.lyrics'
 ]
 
 LOADED_MODULES = []
@@ -43,7 +44,14 @@ def listener(*messages):
                 chat_id = msg.chat.id
                 answer = jova_answer(msg.text.lower())
                 if answer:
-                    answer = jova_replace(answer)
+
+                    if isinstance(answer, tuple):
+                        if answer[1]:
+                            answer = jova_replace(answer[0])
+                        else:
+                            answer = answer[0]
+                    else:
+                        answer = jova_replace(answer)
 
                     tb.send_chat_action(chat_id, 'typing')
                     words_count = count_words(answer)
