@@ -60,3 +60,4 @@ target/
 key.token
 
 *.orig
+modules/lyrics/index/
