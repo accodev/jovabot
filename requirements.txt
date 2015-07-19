@@ -1,5 +1,5 @@
 beautifulsoup4==4.4.0
-feedparser==5.2.0
+feedparser==5.2.0.post1
 py==1.4.30
 pyTelegramBotAPI==0.2.5
 pytest==2.7.2
