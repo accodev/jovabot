@@ -1,65 +1,56 @@
 # coding=utf-8
-import telebot
+import telegram
 import time
 import importlib
 import modules
+import datetime
 
 # ordered by priority
 ENABLED_MODULES = [
-'modules.horoscope',
-'modules.addressbook',
-'modules.learn',
-'modules.random',
-'modules.lyrics'
+    'modules.horoscope',
+    'modules.addressbook',
+    'modules.learn',
+    'modules.random',
+    'modules.lyrics'
 ]
 
 LOADED_MODULES = []
 
-tb = None
+bot = None
+
 
 def extract_token(filename):
-    t = open(filename, "r")
-    token = t.readline()
-    print("telegram bot api token is {0}".format(token))
+    with open(filename, "r") as f:
+        token = f.readline()
     return token
+
 
 def jova_replace(s):
     return s \
-    .replace('s', 'f') \
-    .replace('x', 'f') \
-    .replace('z', 'f') \
-    .replace('S', 'F') \
-    .replace('X', 'F') \
-    .replace('Z', 'F')
+        .replace('s', 'f') \
+        .replace('x', 'f') \
+        .replace('z', 'f') \
+        .replace('S', 'F') \
+        .replace('X', 'F') \
+        .replace('Z', 'F')
 
-# @telebot.async()
-def listener(*messages):
-    # When new messages arrive TeleBot will call this function.
-    print("message arrived")
-    for m in messages:
-        if m[0].content_type == 'text':
-            msg = m[0]  # perche'?
-            if 'jova' in msg.text.lower():  # invocato il dio supremo
-                print("jova they are searching for you!")
-                chat_id = msg.chat.id
-                answer = jova_answer(msg.text.lower())
-                if answer:
 
-                    if isinstance(answer, tuple):
-                        if answer[1]:
-                            answer = jova_replace(answer[0])
-                        else:
-                            answer = answer[0]
+def jova_do_something(message):
+    if message.text:
+        if 'jova' in message.text.lower():  # invocato il dio supremo
+            print("[{0}] [from {1}] [message [{2}]]".format(datetime.datetime.now().isoformat(), message.from_user, message.text))
+            chat_id = message.chat.id
+            answer = jova_answer(message.text.lower())
+            if answer:
+                if isinstance(answer, tuple):
+                    if answer[1]:
+                        answer = jova_replace(answer[0])
                     else:
-                        answer = jova_replace(answer)
-
-                    tb.send_chat_action(chat_id, 'typing')
-                    words_count = count_words(answer)
-                    words_per_sec = 600
-                    time_to_write = words_count / words_per_sec
-                    # print "word count {0} -> time to write {1} at {2} words per second".format(words_count, time_to_write, words_per_sec)
-                    time.sleep(time_to_write)
-                    tb.send_message(chat_id, answer, reply_to_message_id=msg.message_id)
+                        answer = answer[0]
+                else:
+                    answer = jova_replace(answer)
+                bot.sendChatAction(chat_id, telegram.ChatAction.TYPING)
+                bot.sendMessage(chat_id, answer, reply_to_message_id=message.message_id)
 
 
 def jova_answer(message):
@@ -70,6 +61,7 @@ def jova_answer(message):
         if answer:
             return answer
     return None
+
 
 def count_words(phrase):
     return len(phrase.split(" "))
@@ -85,6 +77,7 @@ def load_modules():
             LOADED_MODULES.append(mod)
             print('loaded module', mod)
 
+
 def init_modules():
     global LOADED_MODULES
     for m in LOADED_MODULES:
@@ -95,16 +88,25 @@ def main():
     load_modules()
     init_modules()
 
-    token = extract_token("key.token")
-    global tb
-    tb = telebot.TeleBot(token, True, 4)
-    # tb = telebot.AsyncTeleBot(token)
-    tb.set_update_listener(listener)
-    tb.polling(interval=2)
+    global bot
+    bot = telegram.Bot(token=extract_token("key.token"))
+
+    # todo: refactor this at some point
+    updates = bot.getUpdates()
+    update_id = 1
+    for u in updates:
+        update_id = u.update_id
 
     while True:
-        time.sleep(0)
+        updates = bot.getUpdates(offset=update_id + 1)
+        for u in updates:
+            update_id = u.update_id
+            if u.message:
+                jova_do_something(u.message)
+
+        time.sleep(2)
 
 
+# todo: add args parser
 if __name__ == '__main__':
     main()

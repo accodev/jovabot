@@ -61,7 +61,7 @@ def jova_help():
             print("\t{0}".format(condition))
             plain_message += '\t' + condition + '\n'
         plain_message += '--------\n'
-    return plain_message
+    return plain_message, False
 
 def jova_answer_conditions(message):
     plain_message = None
