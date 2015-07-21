@@ -63,3 +63,5 @@ key.token
 modules/lyrics/index/
 
 *.db
+
+*.pid

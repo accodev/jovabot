@@ -1,9 +1,6 @@
 # coding=utf-8
 import telegram
-import time
-import importlib
-import modules
-import datetime
+import sys, os, time, datetime, importlib, modules
 
 # ordered by priority
 ENABLED_MODULES = [
@@ -85,6 +82,17 @@ def init_modules():
 
 
 def main():
+    # gestione processid - singola istanza
+    pid = str(os.getpid())
+    pidfile = "jovabot.pid"
+
+    if os.path.isfile(pidfile):
+        print("{0} already exists, exiting", pidfile)
+        sys.exit()
+    else:
+        with open(pidfile, "w") as f:
+            f.write(pid)
+
     load_modules()
     init_modules()
 
