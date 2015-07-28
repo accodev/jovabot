@@ -6,7 +6,7 @@
 
 ### Come aggiungerlo su telegram
 
-Aggiungere ad un gruppo o mandare un messaggio direttamente a **@jovanottibot**
+Aggiungere ad un gruppo o mandare un messaggio direttamente a [@jovanottibot](https://telegram.me/jovanottibot)
 
 
 ### Introduzione
