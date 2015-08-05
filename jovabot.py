@@ -32,10 +32,10 @@ def jova_replace(s):
         .replace('Z', 'F')
 
 
-def jova_do_something(message):
+def jova_do_something(message, update_id):
     if message.text:
         if 'jova' in message.text.lower():  # invocato il dio supremo
-            print("[{0}] [from {1}] [message [{2}]]".format(datetime.datetime.now().isoformat(), message.from_user, message.text))
+            print("[{0}] [{1}] [from {2}] [message ['{3}']]".format(datetime.datetime.now().isoformat(), update_id,  message.from_user, message.text))
             chat_id = message.chat.id
             answer = jova_answer(message.text.lower())
             if answer:
@@ -86,12 +86,8 @@ def main():
     pid = str(os.getpid())
     pidfile = "jovabot.pid"
 
-    if os.path.isfile(pidfile):
-        print("{0} already exists, exiting", pidfile)
-        sys.exit()
-    else:
-        with open(pidfile, "w") as f:
-            f.write(pid)
+    with open(pidfile, "w") as f:
+        f.write(pid)
 
     load_modules()
     init_modules()
@@ -110,7 +106,7 @@ def main():
         for u in updates:
             update_id = u.update_id
             if u.message:
-                jova_do_something(u.message)
+                jova_do_something(u.message, update_id)
 
         time.sleep(2)
 
