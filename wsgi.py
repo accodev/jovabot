@@ -1,5 +1,5 @@
 import app
-	
+
 if __name__ == "__main__":
-	app.webapp.run()
-	app.jovabot()
+    app.jovabot()
+    app.webapp.run()

@@ -3,7 +3,7 @@
 import os
 import datetime
 import importlib
-import modules
+from . import modules
 
 import telegram
 from flask import Flask, request
@@ -11,11 +11,11 @@ from flask import Flask, request
 
 # ordered by priority
 ENABLED_MODULES = [
-    'modules.horoscope',
-    'modules.addressbook',
-    'modules.learn',
-    'modules.random',
-    'modules.lyrics'
+    'app.modules.horoscope',
+    'app.modules.addressbook',
+    'app.modules.learn',
+    'app.modules.random',
+    'app.modules.lyrics'
 ]
 
 LOADED_MODULES = []
@@ -78,7 +78,7 @@ def load_modules():
     global ENABLED_MODULES
 
     for p in ENABLED_MODULES:
-        mod = importlib.import_module(p, 'modules')
+        mod = importlib.import_module(p, 'app.modules')
         if mod:
             LOADED_MODULES.append(mod)
             print('loaded module', mod)
@@ -104,7 +104,7 @@ def jovabot():
     t = extract_token("key.token")
     bot = telegram.Bot(token=t)
 
-    with open('../cer/jovabot.crt') as c:
+    with open('cer/jovabot.crt') as c:
         cer = c.read()
 
     bot.setWebhook(webhook_url='https://acco.duckdns.org/telegram' + t, certificate=cer)
