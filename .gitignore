@@ -67,3 +67,4 @@ modules/lyrics/index/
 *.pid
 *.crt
 *.key
+app/modules/lyrics/index/
