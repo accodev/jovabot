@@ -1,7 +1,13 @@
 # coding=utf-8
+
+import os
+import datetime
+import importlib
+import modules
+
 import telegram
-import sys, os, time, datetime, importlib, modules
 from flask import Flask, request
+
 
 # ordered by priority
 ENABLED_MODULES = [
@@ -17,6 +23,7 @@ LOADED_MODULES = []
 bot = None
 
 webapp = Flask(__name__)
+
 
 def extract_token(filename):
     with open(filename, "r") as f:
@@ -37,7 +44,7 @@ def jova_replace(s):
 def jova_do_something(message):
     if message.text:
         if 'jova' in message.text.lower():  # invocato il dio supremo
-            print("[{0}] [from {1}] [message ['{2}']]".format(datetime.datetime.now().isoformat(), update_id,  message.from_user, message.text))
+            print("[{0}] [from {1}] [message ['{2}']]".format(datetime.datetime.now().isoformat(), message.from_user, message.text))
             chat_id = message.chat.id
             answer = jova_answer(message.text.lower())
             if answer:
@@ -84,42 +91,39 @@ def init_modules():
 
 
 def jovabot():
-	pid = str(os.getpid())
-	pidfile = "jovabot.pid"
+    pid = str(os.getpid())
+    pidfile = "jovabot.pid"
 
-	with open(pidfile, "w") as p:
-		p.write(pid)
+    with open(pidfile, "w") as p:
+        p.write(pid)
 
-	load_modules()
-	init_modules()
+    load_modules()
+    init_modules()
 
-	global bot
-	t = extract_token("key.token")
-	bot = telegram.Bot(token=t)
+    global bot
+    t = extract_token("key.token")
+    bot = telegram.Bot(token=t)
 
-	with open('../cer/jovabot.crt') as c:
-		cer = c.read()
+    with open('../cer/jovabot.crt') as c:
+        cer = c.read()
 
-	bot.setWebhook(webhook_url='https://acco.duckdns.org/telegram' + t, certificate=cer)
-	
+    bot.setWebhook(webhook_url='https://acco.duckdns.org/telegram' + t, certificate=cer)
 
-	
+
 @webapp.route('/telegram' + extract_token("key.token"), methods=['POST'])
 def telegram_hook():
-	# retrieve the message in JSON and then transform it to Telegram object
-	update = telegram.Update.de_json(request.get_json(force=True))
+    # retrieve the message in JSON and then transform it to Telegram object
+    update = telegram.Update.de_json(request.get_json(force=True))
 
-	chat_id = update.message.chat.id
+    # do something, man!
+    jova_do_something(update.message)
 
-	# jooovaaaa
-	jova_do_something(update.message)
-	
-	
+
 @webapp.route('/')
 def hello():
-	return "hello!"
+    return "hello!"
+
 
 if __name__ == '__main__':
-	jovabot()
-	webapp.run()
-	
+    jovabot()
+    webapp.run()
