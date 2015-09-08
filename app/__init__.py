@@ -25,6 +25,8 @@ bot = None
 
 webapp = Flask(__name__)
 
+logging.basicConfig(filename='jovabot.log', level=logging.DEBUG)
+
 
 def extract_token(filename):
     with open(filename, "r") as f:
