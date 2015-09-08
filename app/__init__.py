@@ -4,6 +4,7 @@ import os
 import datetime
 import importlib
 from . import modules
+import logging
 
 import telegram
 from flask import Flask, request
@@ -44,7 +45,7 @@ def jova_replace(s):
 def jova_do_something(message):
     if message.text:
         if 'jova' in message.text.lower():  # invocato il dio supremo
-            print("[{0}] [from {1}] [message ['{2}']]".format(datetime.datetime.now().isoformat(), message.from_user, message.text))
+            logging.info("[{0}] [from {1}] [message ['{2}']]".format(datetime.datetime.now().isoformat(), message.from_user, message.text))
             chat_id = message.chat.id
             answer = jova_answer(message.text.lower())
             if answer:
@@ -81,7 +82,7 @@ def load_modules():
         mod = importlib.import_module(p, 'app.modules')
         if mod:
             LOADED_MODULES.append(mod)
-            print('loaded module', mod)
+            logging.info('loaded module', mod)
 
 
 def init_modules():
