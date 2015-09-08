@@ -1,10 +1,4 @@
-import app
-
-
-def main():
-	app.jovabot()
-	app.webapp.run()
-	
+import jovabot
 
 if __name__ == "__main__":
-    main()
+    jovabot.webapp.run()

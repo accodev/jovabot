@@ -68,3 +68,4 @@ modules/lyrics/index/
 *.crt
 *.key
 app/modules/lyrics/index/
+jovabot/modules/lyrics/index/

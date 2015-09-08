@@ -12,11 +12,11 @@ from flask import Flask, request
 
 # ordered by priority
 ENABLED_MODULES = [
-    'app.modules.horoscope',
-    'app.modules.addressbook',
-    'app.modules.learn',
-    'app.modules.random',
-    'app.modules.lyrics'
+    'jovabot.modules.horoscope',
+    'jovabot.modules.addressbook',
+    'jovabot.modules.learn',
+    'jovabot.modules.random',
+    'jovabot.modules.lyrics'
 ]
 
 LOADED_MODULES = []
@@ -47,7 +47,9 @@ def jova_replace(s):
 def jova_do_something(message):
     if message.text:
         if 'jova' in message.text.lower():  # invocato il dio supremo
-            logging.info("[{0}] [from {1}] [message ['{2}']]".format(datetime.datetime.now().isoformat(), message.from_user, message.text))
+            logging.info(
+                "[{0}] [from {1}] [message ['{2}']]".format(datetime.datetime.now().isoformat(), message.from_user,
+                                                            message.text))
             chat_id = message.chat.id
             answer = jova_answer(message.text.lower())
             if answer:
@@ -72,19 +74,15 @@ def jova_answer(message):
     return None
 
 
-def count_words(phrase):
-    return len(phrase.split(" "))
-
-
 def load_modules():
     global LOADED_MODULES
     global ENABLED_MODULES
 
     for p in ENABLED_MODULES:
-        mod = importlib.import_module(p, 'app.modules')
+        mod = importlib.import_module(p, 'jovabot.modules')
         if mod:
             LOADED_MODULES.append(mod)
-            logging.info('loaded module', mod)
+            logging.info('loaded module {0}'.format(mod))
 
 
 def init_modules():
@@ -93,7 +91,22 @@ def init_modules():
         m.init()
 
 
-def jovabot():
+@webapp.route('/telegram' + extract_token("key.token"), methods=['POST'])
+def telegram_hook():
+    # retrieve the message in JSON and then transform it to Telegram object
+    update = telegram.Update.de_json(request.get_json(force=True))
+
+    # do something, man!
+    jova_do_something(update.message)
+
+
+@webapp.route('/')
+def hello():
+    return "hello!"
+
+
+@webapp.before_first_request
+def main():
     pid = str(os.getpid())
     pidfile = "jovabot.pid"
 
@@ -113,20 +126,5 @@ def jovabot():
     bot.setWebhook(webhook_url='https://acco.duckdns.org/telegram' + t, certificate=cer)
 
 
-@webapp.route('/telegram' + extract_token("key.token"), methods=['POST'])
-def telegram_hook():
-    # retrieve the message in JSON and then transform it to Telegram object
-    update = telegram.Update.de_json(request.get_json(force=True))
-
-    # do something, man!
-    jova_do_something(update.message)
-
-
-@webapp.route('/')
-def hello():
-    return "hello!"
-
-
 if __name__ == '__main__':
-    jovabot()
     webapp.run()
