@@ -105,11 +105,19 @@ def hello():
     return "hello!"
 
 
-@webapp.route('/init_webhook')
-def init_webhook():
+@webapp.route('/webhook/set')
+def webhook_set():
     with open('/etc/nginx/ssl/nginx.crt') as c:
         res = bot.setWebhook(webhook_url='https://acco.duckdns.org/telegram', certificate=c.buffer)
         logging.info(res)
+
+    return 'ok'
+
+
+@webapp.route('/webhook/delete')
+def webhook_delete():
+    res = bot.setWebhook('')
+    logging.info(res)
 
     return 'ok'
 
