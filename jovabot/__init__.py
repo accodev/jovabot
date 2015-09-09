@@ -103,13 +103,13 @@ def telegram_hook():
 @webapp.route('/')
 def hello():
     return "hello!"
-	
-	
+
+
 @webapp.route('/init_webhook')
 def init_webhook():
-	with open('cer/jovabot.crt') as c:
-		cer = c.read()
-    bot.setWebhook(webhook_url='https://acco.duckdns.org/telegram' + t, certificate=cer)
+    with open('cer/jovabot.crt') as c:
+        cer = c.read()
+    bot.setWebhook(webhook_url='https://acco.duckdns.org/telegram' + extract_token("key.token"), certificate=cer)
 
 
 @webapp.before_first_request
@@ -124,8 +124,7 @@ def main():
     init_modules()
 
     global bot
-    t = extract_token("key.token")
-    bot = telegram.Bot(token=t)
+    bot = telegram.Bot(token=extract_token("key.token"))
     
 
 
