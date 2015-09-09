@@ -108,7 +108,7 @@ def hello():
 @webapp.route('/init_webhook')
 def init_webhook():
     with open('/etc/nginx/ssl/nginx.crt') as c:
-        res = bot.setWebhook(webhook_url='https://acco.duckdns.org/telegram', certificate=c)
+        res = bot.setWebhook(webhook_url='https://acco.duckdns.org/telegram', certificate=c.buffer)
         logging.info(res)
 
     return 'ok'
