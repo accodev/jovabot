@@ -98,6 +98,7 @@ def telegram_hook():
 
     # log some shitz
     logging.info(update.__dict__)
+    logging.info(update.message.__dict__)
 
     # do something, man!
     jova_do_something(update.message)
