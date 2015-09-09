@@ -91,7 +91,8 @@ def init_modules():
         m.init()
 
 
-@webapp.route('/telegram' + extract_token("key.token"), methods=['POST'])
+#@webapp.route('/telegram' + extract_token("key.token"), methods=['POST'])
+@webapp.route('/telegram', methods=['POST'])
 def telegram_hook():
     # retrieve the message in JSON and then transform it to Telegram object
     update = telegram.Update.de_json(request.get_json(force=True))
@@ -109,7 +110,9 @@ def hello():
 def init_webhook():
     with open('cer/jovabot.crt') as c:
         cer = c.read()
-    bot.setWebhook(webhook_url='https://acco.duckdns.org/telegram' + extract_token("key.token"), certificate=cer)
+    res = bot.setWebhook(webhook_url='https://acco.duckdns.org/telegram', certificate=cer)
+
+    return res
 
 
 @webapp.before_first_request
@@ -125,7 +128,6 @@ def main():
 
     global bot
     bot = telegram.Bot(token=extract_token("key.token"))
-    
 
 
 if __name__ == '__main__':
