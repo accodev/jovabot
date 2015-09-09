@@ -96,6 +96,9 @@ def telegram_hook():
     # retrieve the message in JSON and then transform it to Telegram object
     update = telegram.Update.de_json(request.get_json(force=True))
 
+    # log some shitz
+    logging.info(update.__dict__)
+
     # do something, man!
     jova_do_something(update.message)
 
