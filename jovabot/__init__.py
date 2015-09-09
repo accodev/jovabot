@@ -111,8 +111,9 @@ def init_webhook():
     with open('cer/jovabot.crt') as c:
         cer = c.read()
     res = bot.setWebhook(webhook_url='https://acco.duckdns.org/telegram', certificate=cer)
+    logging.info(res)
 
-    return res
+    return 'ok'
 
 
 @webapp.before_first_request
