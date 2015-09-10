@@ -128,7 +128,7 @@ def webhook(command):
 
     logging.info(res)
 
-    return res, 200
+    return 'ok', 200
 
 
 def webhook_set():
