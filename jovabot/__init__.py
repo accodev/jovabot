@@ -50,7 +50,7 @@ def jova_do_something(message):
             logging.info(
                 "[{0}] [from {1}] [message ['{2}']]".format(datetime.datetime.now().isoformat(), message.from_user,
                                                             message.text))
-            chat_id = message.chat.id
+            chat_id = message.chat_id
             answer = jova_answer(message.text.lower())
             if answer:
                 if isinstance(answer, tuple):
@@ -60,8 +60,8 @@ def jova_do_something(message):
                         answer = answer[0]
                 else:
                     answer = jova_replace(answer)
-                bot.sendChatAction(chat_id, telegram.ChatAction.TYPING)
-                bot.sendMessage(chat_id, answer, reply_to_message_id=message.message_id)
+                bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+                bot.sendMessage(chat_id=chat_id, text=answer, reply_to_message_id=message.message_id)
 
 
 def jova_answer(message):
@@ -93,15 +93,23 @@ def init_modules():
 
 @webapp.route('/telegram', methods=['POST'])
 def telegram_hook():
+    logging.info("telegram message arrived")
     # retrieve the message in JSON and then transform it to Telegram object
-    update = telegram.Update.de_json(request.get_json(force=True))
+    req = request.get_json(force=True)
+    logging.info(req)
+    update = telegram.Update.de_json(req)
+
 
     # log some shitz
     logging.info(update.__dict__)
     logging.info(update.message.__dict__)
+    logging.info(update.message.chat.__dict__)
 
     # do something, man!
     jova_do_something(update.message)
+
+    # jova return something ffs!
+    return "ok", 200
 
 
 @webapp.route('/')
@@ -115,7 +123,7 @@ def webhook_set():
         res = bot.setWebhook(webhook_url='https://acco.duckdns.org/jovabot/telegram', certificate=c.buffer)
         logging.info(res)
 
-    return 'ok'
+    return 'ok', 200
 
 
 @webapp.route('/webhook/delete')
@@ -123,11 +131,12 @@ def webhook_delete():
     res = bot.setWebhook('')
     logging.info(res)
 
-    return 'ok'
+    return 'ok', 200
 
 
 @webapp.before_first_request
 def main():
+    logging.info("starting up")
     pid = str(os.getpid())
     pidfile = "jovabot.pid"
 
