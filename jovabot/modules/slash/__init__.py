@@ -23,7 +23,7 @@ def jova_about():
 
 def jova_help():
     with open('HELP.md') as f:
-        return f.read()
+        return f.read(), 'markdown'
     
 
 def handle_slash_command(slash_command):

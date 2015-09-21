@@ -57,16 +57,21 @@ def jova_do_something(message):
                                                             message.text))
             chat_id = message.chat_id
             answer = jova_answer(message.text.lower())
+            md = False
             if answer:
                 if isinstance(answer, tuple):
-                    if answer[1]:
+                    if answer[1]:  # replace all the stuff jova!
                         answer = jova_replace(answer[0])
-                    else:
+                    elif answer[1] == 'plain-text':
                         answer = answer[0]
+                    elif answer[1] == 'markdown':
+                        answer = answer[0]
+                        md = True  # man do this shit bettah
                 else:
                     answer = jova_replace(answer)
                 bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
-                bot.sendMessage(chat_id=chat_id, text=answer, reply_to_message_id=message.message_id)
+                bot.sendMessage(chat_id=chat_id, text=answer, reply_to_message_id=message.message_id,
+                                parse_mode=telegram.ParseMode.MARKDOWN if md else None)
 
 
 def jova_answer(message):

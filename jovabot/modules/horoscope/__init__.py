@@ -2,6 +2,7 @@
 import re
 from . import oroscopy
 
+
 def init():
     pass
 
@@ -11,13 +12,13 @@ def get_answer(message):
         return jova_oroscopo(message)
     return None
 
-def jova_oroscopo(message):
 
+def jova_oroscopo(message):
     signes = [
-    'ariete', 'toro', 'gemelli',
-    'cancro', 'leone', 'vergine',
-    'bilancia', 'scorpione', 'sagittario',
-    'capricorno', 'acquario', 'pesci']
+        'ariete', 'toro', 'gemelli',
+        'cancro', 'leone', 'vergine',
+        'bilancia', 'scorpione', 'sagittario',
+        'capricorno', 'acquario', 'pesci']
 
     found_signes = [x for x in signes if x in message]
 

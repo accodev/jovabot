@@ -74,6 +74,6 @@ def get_answer(message):
         if result is None or 'path' not in result:
             return None
 
-        return (result['path'], False)
+        return result['path'], 'plain-text'
 
     return None

@@ -15,7 +15,6 @@ def get_answer(message):
         return jova_learn(message)
     else:
         return jova_answer_learned(message)
-    return None
 
 
 def jova_answer_learned(message):
