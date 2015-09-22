@@ -13,6 +13,7 @@ from flask import Flask, request, abort
 
 # ordered by priority
 ENABLED_MODULES = [
+    'jovabot.modules.slash',
     'jovabot.modules.horoscope',
     'jovabot.modules.addressbook',
     'jovabot.modules.learn',
@@ -51,7 +52,7 @@ def jova_replace(s):
 
 def jova_do_something(message):
     if message.text:
-        if 'jova' in message.text.lower():  # jova, I choose you!
+        if 'jova' in message.text.lower() or '/' in message.text[0]:  # jova, I choose you!
             logging.info(
                 "[{0}] [from {1}] [message ['{2}']]".format(datetime.datetime.now().isoformat(), message.from_user,
                                                             message.text))

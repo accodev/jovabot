@@ -1,4 +1,5 @@
 # this module is used to handle slash commands (/about, /help, etc.)
+import os
 
 slash_commands = {}
 
@@ -18,11 +19,13 @@ def get_answer(message):
 
 
 def jova_about():
-    return 'Info about this bot @ github.com/shevraar/jovabot'
+    return 'Info about this bot @ github.com/shevraar/jovabot', 'plain-text'
 
 
 def jova_help():
-    with open('HELP.md') as f:
+    package_directory = os.path.dirname(os.path.abspath(__file__))
+    help_path = os.path.join(package_directory, 'HELP.md')
+    with open(help_path) as f:
         return f.read(), 'markdown'
     
 
