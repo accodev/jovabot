@@ -63,7 +63,8 @@ def jova_do_something(message):
                 if isinstance(answer, tuple):
                     if answer[1]:
                         answer = answer[0]
-                        md = True if answer[1] == 'markdown' else md = False
+                        if answer[1] == 'markdown':
+                            md = True
                 else:
                     answer = jova_replace(answer)
                 bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
