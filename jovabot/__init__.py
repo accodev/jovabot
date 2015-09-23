@@ -68,8 +68,12 @@ def jova_do_something(message):
                 else:
                     answer = jova_replace(answer)
                 bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+                if md:
+                    parse_mode = telegram.ParseMode.MARKDOWN
+                else:
+                    parse_mode = None
                 bot.sendMessage(chat_id=chat_id, text=answer, reply_to_message_id=message.message_id,
-                                parse_mode=telegram.ParseMode.MARKDOWN if md else None)
+                                parse_mode=parse_mode)
 
 
 def jova_answer(message):
