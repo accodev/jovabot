@@ -61,13 +61,9 @@ def jova_do_something(message):
             md = False
             if answer:
                 if isinstance(answer, tuple):
-                    if answer[1]:  # replace all the stuff jova!
-                        answer = jova_replace(answer[0])
-                    elif answer[1] == 'plain-text':
+                    if answer[1]:
                         answer = answer[0]
-                    elif answer[1] == 'markdown':
-                        answer = answer[0]
-                        md = True  # man do this shit bettah
+                        md = True if answer[1] == 'markdown' else md = False
                 else:
                     answer = jova_replace(answer)
                 bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
@@ -114,7 +110,7 @@ def telegram_hook(token):
         # jova return something ffs!
         return "ok", 200
     else:
-        return "ko", 400
+        return "ko", 403
 
 
 @webapp.route('/')
@@ -130,7 +126,7 @@ def webhook(command):
         res = webhook_delete()
     else:
         res = 'unsupported command {0}'.format(command)
-        abort(400)
+        abort(403)
 
     logging.info(res)
 
