@@ -18,10 +18,10 @@ def search_wp(name, location):
 
     try:
         r = requests.get(WHITE_PAGES_URL, params=payload)
-        print('requesting', r.url)
+        logging.debug('requesting', r.url)
         return parse_response(r.text)
     except Exception as e:
-        print('search failed', e)
+        logging.debug('search failed', e)
         return None
 
 def parse_response(text):
@@ -47,7 +47,7 @@ def test():
     loc = sys.argv[2]
 
     for o in search_wp(name, loc):
-        print(o.__dict__)
+        logging.debug(o.__dict__)
 
 if __name__ == "__main__":
     test()

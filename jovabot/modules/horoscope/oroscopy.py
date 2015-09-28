@@ -36,9 +36,9 @@ def main():
     try:
         sign = sys.argv[1]
         for o in get([sign]):
-            print('{0}\n{1}\n'.format(o.sign, o.text))
+            logging.debug('{0}\n{1}\n'.format(o.sign, o.text))
     except Exception as e:
-        print('oroscopo non trovato', e)
+        logging.exception('oroscopo non trovato', e)
 
 if __name__ == '__main__':
     main()

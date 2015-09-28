@@ -8,7 +8,7 @@ def init():
 
 
 def get_answer(message):
-    if 'oroscopo' in message:
+    if 'oroscopo' in message and '/' not in message[0]:
         return jova_oroscopo(message)
     return None
 
@@ -22,7 +22,7 @@ def jova_oroscopo(message):
 
     found_signes = [x for x in signes if x in message]
 
-    print("oroscopo richiesto per i segni: ", found_signes)
+    logging.debug("oroscopo richiesto per i segni: ", found_signes)
 
     if not len(found_signes):
         return None

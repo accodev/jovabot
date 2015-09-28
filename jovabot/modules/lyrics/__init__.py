@@ -22,7 +22,7 @@ def init():
 
     if not exists(index_dir):
         mkdir(index_dir)
-    print('create lyrics index')
+    logging.debug('create lyrics index')
     ix = create_in(index_dir, schema)
     #else:
     #    print('open lyrics index')
@@ -47,6 +47,9 @@ def init():
 
 
 def get_answer(message):
+
+    if '/' in message[0]:
+        return None
 
     rx = r'jova,?\s(.+)$'
     m = re.match(rx, message)

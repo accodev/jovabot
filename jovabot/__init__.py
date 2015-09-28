@@ -115,7 +115,7 @@ def telegram_hook(token):
         except Exception as e:
             bot.sendMessage(chat_id=update.message.chat_id, text=jova_replace('Non so cosa vuoi da me... Pussa via!'), reply_to_message_id=update.message.message_id)
             bot.sendMessage(chat_id=os.environ['JOVABOT_CREATOR_CHAT_ID'], text=e)
-            logging.exception(e)
+            logging.exception('Something broke', e)
 
         # jova return something ffs!
         return "ok", 200

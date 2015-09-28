@@ -13,7 +13,7 @@ def init():
 
 
 def get_answer(message):
-    if 'a cosa rispondi' in message:
+    if 'a cosa rispondi' in message and '/' not in message[0]:
         answer = jova_help()
     else:
         answer = jova_answer_conditions(message)
@@ -23,7 +23,7 @@ def get_answer(message):
 def read_jova_phrases():
     global phrases_list
 
-    print("start reading jova phrases...")
+    logging.debug("start reading jova phrases...")
 
     rel = dirname(__file__)
     phrases_path = join(rel, 'phrases')
@@ -32,13 +32,13 @@ def read_jova_phrases():
     for file in onlyfiles:
         with open(join(phrases_path, file), encoding="utf-8") as f:
             phrases_list[file] = f.read().splitlines()
-            print("\t{0} read ->\tlines {1}".format(file, len(phrases_list[file])))
+            logging.debug("{0} read -> lines {1}".format(file, len(phrases_list[file])))
 
 
 def read_jova_conditions():
     global conditions_list
 
-    print("start reading jova conditions...")
+    logging.debug("start reading jova conditions...")
 
     rel = dirname(__file__)
     cond_path = join(rel, 'conditions')
@@ -47,18 +47,18 @@ def read_jova_conditions():
     for file in onlyfiles:
         with open(join(cond_path, file), encoding="utf-8") as f:
             conditions_list[file] = f.read().splitlines()
-            print("\t{0} read ->\tlines {1}".format(file, len(conditions_list[file])))
+            logging.debug("\t{0} read ->\tlines {1}".format(file, len(conditions_list[file])))
 
 
 def jova_help():
     plain_message = ""
-    print("printing help...")
+    logging.debug("printing help...")
     for condition_file in conditions_list:
-        print("printing conditions for {0} ->".format(condition_file))
+        logging.debug("printing conditions for {0} ->".format(condition_file))
         plain_message += '*' + condition_file.upper() + '*\n'
         conditions = conditions_list.get(condition_file)
         for condition in conditions:
-            print("\t\t_{0}_".format(condition))
+            logging.debug("\t\t_{0}_".format(condition))
             plain_message += '\t' + condition + '\n'
         plain_message += '\n'
     return plain_message, 'markdown'
