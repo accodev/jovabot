@@ -13,7 +13,7 @@ def init():
 
 
 def get_answer(message):
-    if 'help' in message:
+    if 'a cosa rispondi' in message:
         answer = jova_help()
     else:
         answer = jova_answer_conditions(message)
@@ -55,13 +55,13 @@ def jova_help():
     print("printing help...")
     for condition_file in conditions_list:
         print("printing conditions for {0} ->".format(condition_file))
-        plain_message += condition_file + '\n'
+        plain_message += '*' + condition_file.upper() + '*\n'
         conditions = conditions_list.get(condition_file)
         for condition in conditions:
-            print("\t{0}".format(condition))
+            print("\t\t_{0}_".format(condition))
             plain_message += '\t' + condition + '\n'
-        plain_message += '--------\n'
-    return plain_message, 'plain-text'
+        plain_message += '\n'
+    return plain_message, 'markdown'
 
 def jova_answer_conditions(message):
     plain_message = None

@@ -8,7 +8,9 @@ def init():
     global slash_commands
     slash_commands = {
         'about': jova_about,
-        'help': jova_help
+        'about@jovanottibot': jova_about,
+        'help': jova_help,
+        'help@jovanottibot': jova_help
     }
 
 
