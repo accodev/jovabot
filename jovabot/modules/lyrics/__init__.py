@@ -59,8 +59,6 @@ def get_answer(message):
     parser = QueryParser("content", ix.schema)
     qry = parser.parse(search_terms)
 
-    print(qry)
-
     with ix.searcher() as searcher:
         results = searcher.search(qry)
         result = None
