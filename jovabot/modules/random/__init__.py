@@ -14,10 +14,13 @@ def init():
 
 
 def get_answer(message):
-    if 'a cosa rispondi' in message and '/' not in message[0]:
-        answer = jova_help()
+    if '/' not in message[0]:
+        if 'a cosa rispondi' in message :
+            answer = jova_help()
+        else:
+            answer = jova_answer_conditions(message)
     else:
-        answer = jova_answer_conditions(message)
+        answer = None
     return answer
 
 
