@@ -8,6 +8,8 @@ from whoosh.index import create_in, open_dir
 from whoosh.fields import Schema, TEXT
 from whoosh.qparser import QueryParser
 
+import logging
+
 import random
 
 ix = None
