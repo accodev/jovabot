@@ -2,6 +2,7 @@
 
 import feedparser
 import sys
+import logging
 
 FEED_URL = 'http://it.horoscopofree.com/rss/horoscopofree-it.rss'
 

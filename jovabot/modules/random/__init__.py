@@ -3,6 +3,7 @@
 from os import listdir
 from os.path import isfile, join, dirname
 import random
+import logging
 
 phrases_list = {}
 conditions_list = {}

@@ -3,6 +3,7 @@ import re
 import os
 import json
 import random
+import logging
 
 learned = {}
 
@@ -11,7 +12,7 @@ def init():
 
 
 def get_answer(message):
-    if 'se ti dico' in message:
+    if 'se ti dico' in message and '/' not in message[0]:
         return jova_learn(message)
     else:
         return jova_answer_learned(message)

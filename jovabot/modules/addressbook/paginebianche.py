@@ -1,6 +1,7 @@
 import requests
 import re
 import sys
+import logging
 
 from bs4 import BeautifulSoup
 

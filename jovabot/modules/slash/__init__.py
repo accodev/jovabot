@@ -1,5 +1,6 @@
 # this module is used to handle slash commands (/about, /help, etc.)
 import os
+import logging
 
 slash_commands = {}
 
