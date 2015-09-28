@@ -110,7 +110,10 @@ def telegram_hook(token):
         update = telegram.Update.de_json(request.get_json(force=True))
 
         # do something, man!
-        jova_do_something(update.message)
+        try:
+            jova_do_something(update.message)
+        except Exception as e:
+            logging.exception(e)
 
         # jova return something ffs!
         return "ok", 200
