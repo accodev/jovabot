@@ -160,13 +160,6 @@ def webhook_delete():
 def main():
     logging.info("starting up")
 
-    # processid file - useful to track jovabot
-    pid = str(os.getpid())
-    pidfile = "jovabot.pid"
-
-    with open(pidfile, "w") as p:
-        p.write(pid)
-
     # load jovabot modules - crazy stuff
     load_modules()
     init_modules()
