@@ -54,7 +54,7 @@ def jova_do_something(message):
     if message.text:
         if 'jova' in message.text.lower() or '/' in message.text[0]:  # jova, I choose you!
             logging.info(
-                "[from {1}] [message ['{2}']]".format(message.from_user, message.text))
+                "[from {0}] [message ['{1}']]".format(message.from_user, message.text))
             chat_id = message.chat_id
             answer = jova_answer(message.text.lower())
             md = False
@@ -112,8 +112,8 @@ def telegram_hook(token):
         try:
             jova_do_something(update.message)
         except Exception as e:
-            bot.sendMessage(chat_id=update.message.chat_id, text=jova_replace('Non so cosa vuoi da me... Pussa via!'), reply_to_message_id=update.message.message_id)
-            bot.sendMessage(chat_id=os.environ['JOVABOT_CREATOR_CHAT_ID'], text=e)
+#            bot.sendMessage(chat_id=update.message.chat_id, text=jova_replace('Non so cosa vuoi da me... Pussa via!'), reply_to_message_id=update.message.message_id)
+#            bot.sendMessage(chat_id=os.environ['JOVABOT_CREATOR_CHAT_ID'], text=e)
             logging.exception('Something broke', e)
 
         # jova return something ffs!
