@@ -31,7 +31,7 @@ TOKEN = '1234567890abcdefgh'
 TOKEN_PATH = 'key.token'
 CERTIFICATE_PATH = '/etc/nginx/ssl/nginx.crt'
 
-logging.basicConfig(filename='jovabot.log', level=logging.DEBUG)
+logging.basicConfig(handlers=[logging.FileHandler('jovabot.log', 'w', 'utf-8')], level=logging.DEBUG)
 
 
 def extract_token(filename):
