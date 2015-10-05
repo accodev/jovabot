@@ -5,13 +5,15 @@ import datetime
 import importlib
 from . import modules
 import logging
+import socket
 
 import telegram
-from flask import Flask, request
+from flask import Flask, request, abort
 
 
 # ordered by priority
 ENABLED_MODULES = [
+    'jovabot.modules.slash',
     'jovabot.modules.horoscope',
     'jovabot.modules.addressbook',
     'jovabot.modules.learn',
@@ -22,8 +24,12 @@ ENABLED_MODULES = [
 LOADED_MODULES = []
 
 bot = None
-
 webapp = Flask(__name__)
+
+# config section - change these as you like
+TOKEN = '1234567890abcdefgh'
+TOKEN_PATH = 'key.token'
+CERTIFICATE_PATH = '/etc/nginx/ssl/nginx.crt'
 
 logging.basicConfig(filename='jovabot.log', level=logging.DEBUG)
 
@@ -46,22 +52,28 @@ def jova_replace(s):
 
 def jova_do_something(message):
     if message.text:
-        if 'jova' in message.text.lower():  # invocato il dio supremo
+        if 'jova' in message.text.lower() or '/' in message.text[0]:  # jova, I choose you!
             logging.info(
                 "[{0}] [from {1}] [message ['{2}']]".format(datetime.datetime.now().isoformat(), message.from_user,
                                                             message.text))
             chat_id = message.chat_id
             answer = jova_answer(message.text.lower())
+            md = False
             if answer:
                 if isinstance(answer, tuple):
                     if answer[1]:
-                        answer = jova_replace(answer[0])
-                    else:
+                        if answer[1] == 'markdown':
+                            md = True
                         answer = answer[0]
                 else:
                     answer = jova_replace(answer)
                 bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
-                bot.sendMessage(chat_id=chat_id, text=answer, reply_to_message_id=message.message_id)
+                if md:
+                    parse_mode = telegram.ParseMode.MARKDOWN
+                else:
+                    parse_mode = None
+                bot.sendMessage(chat_id=chat_id, text=answer, reply_to_message_id=message.message_id,
+                                parse_mode=parse_mode)
 
 
 def jova_answer(message):
@@ -91,63 +103,73 @@ def init_modules():
         m.init()
 
 
-@webapp.route('/telegram', methods=['POST'])
-def telegram_hook():
-    logging.info("telegram message arrived")
-    # retrieve the message in JSON and then transform it to Telegram object
-    req = request.get_json(force=True)
-    logging.info(req)
-    update = telegram.Update.de_json(req)
+@webapp.route('/telegram/<token>', methods=['POST'])
+def telegram_hook(token):
+    if token == TOKEN:
+        # retrieve the message in JSON and then transform it to Telegram object
+        update = telegram.Update.de_json(request.get_json(force=True))
 
+        # do something, man!
+        try:
+            jova_do_something(update.message)
+        except Exception as e:
+            bot.sendMessage(chat_id=update.message.chat_id, text=jova_replace('Non so cosa vuoi da me... Pussa via!'), reply_to_message_id=update.message.message_id)
+            bot.sendMessage(chat_id=os.environ['JOVABOT_CREATOR_CHAT_ID'], text=e)
+            logging.exception('Something broke', e)
 
-    # log some shitz
-    logging.info(update.__dict__)
-    logging.info(update.message.__dict__)
-    logging.info(update.message.chat.__dict__)
-
-    # do something, man!
-    jova_do_something(update.message)
-
-    # jova return something ffs!
-    return "ok", 200
+        # jova return something ffs!
+        return "ok", 200
+    else:
+        return "ko", 403
 
 
 @webapp.route('/')
 def hello():
-    return "hello!"
+    return "jovabot was here!"
 
 
-@webapp.route('/webhook/set')
-def webhook_set():
-    with open('/etc/nginx/ssl/nginx.crt') as c:
-        res = bot.setWebhook(webhook_url='https://acco.duckdns.org/jovabot/telegram', certificate=c.buffer)
-        logging.info(res)
+@webapp.route('/webhook/<command>')
+def webhook(command):
+    if command == 'set':
+        res = webhook_set()
+    elif command == 'delete':
+        res = webhook_delete()
+    else:
+        res = 'unsupported command {0}'.format(command)
+        abort(403)
 
-    return 'ok', 200
-
-
-@webapp.route('/webhook/delete')
-def webhook_delete():
-    res = bot.setWebhook('')
     logging.info(res)
 
     return 'ok', 200
 
 
+def webhook_set():
+    # use your nginx.crt man!
+    with open(CERTIFICATE_PATH) as c:
+        webhook_url = socket.gethostname() + '/jovabot/telegram/' + TOKEN
+        res = bot.setWebhook(webhook_url=webhook_url, certificate=c.buffer)
+    return res
+
+
+def webhook_delete():
+    res = bot.setWebhook('')
+    return res
+
+
 @webapp.before_first_request
 def main():
     logging.info("starting up")
-    pid = str(os.getpid())
-    pidfile = "jovabot.pid"
 
-    with open(pidfile, "w") as p:
-        p.write(pid)
-
+    # load jovabot modules - crazy stuff
     load_modules()
     init_modules()
 
+    # telegram bot api token
+    global TOKEN
+    TOKEN = extract_token(TOKEN_PATH)
+
     global bot
-    bot = telegram.Bot(token=extract_token("key.token"))
+    bot = telegram.Bot(token=TOKEN)
 
 
 if __name__ == '__main__':
