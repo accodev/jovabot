@@ -31,7 +31,7 @@ TOKEN = '1234567890abcdefgh'
 TOKEN_PATH = 'key.token'
 CERTIFICATE_PATH = '/etc/nginx/ssl/nginx.crt'
 
-logging.basicConfig(handlers=[logging.FileHandler('jovabot.log', 'w', 'utf-8')], level=logging.DEBUG)
+logging.basicConfig(handlers=[logging.FileHandler('jovabot.log', 'w', 'utf-8')], level=logging.DEBUG, format='%(asctime)-15s|%(levelname)-8s|%(process)d|%(name)s|%(module)s|%(message)s')
 
 
 def extract_token(filename):
@@ -54,8 +54,7 @@ def jova_do_something(message):
     if message.text:
         if 'jova' in message.text.lower() or '/' in message.text[0]:  # jova, I choose you!
             logging.info(
-                "[{0}] [from {1}] [message ['{2}']]".format(datetime.datetime.now().isoformat(), message.from_user,
-                                                            message.text))
+                "[from {1}] [message ['{2}']]".format(message.from_user, message.text))
             chat_id = message.chat_id
             answer = jova_answer(message.text.lower())
             md = False
