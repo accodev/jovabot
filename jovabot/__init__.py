@@ -6,6 +6,8 @@ import importlib
 from . import modules
 import logging
 import socket
+import traceback
+import sys
 
 import telegram
 from flask import Flask, request, abort
@@ -30,8 +32,10 @@ webapp = Flask(__name__)
 TOKEN = '1234567890abcdefgh'
 TOKEN_PATH = 'key.token'
 CERTIFICATE_PATH = '/etc/nginx/ssl/nginx.crt'
+CREATOR_CHAT_ID = 0
 
-logging.basicConfig(handlers=[logging.FileHandler('jovabot.log', 'w', 'utf-8')], level=logging.DEBUG, format='%(asctime)-15s|%(levelname)-8s|%(process)d|%(name)s|%(module)s|%(message)s')
+#logging.basicConfig(handlers=[logging.FileHandler('jovabot.log', 'w', 'utf-8')], level=logging.DEBUG, format='%(asctime)-15s|%(levelname)-8s|%(process)d|%(name)s|%(module)s|%(message)s')
+logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)], level=logging.DEBUG, format='%(asctime)-15s|%(levelname)-8s|%(process)d|%(name)s|%(module)s|%(message)s')
 
 
 def extract_token(filename):
@@ -112,8 +116,9 @@ def telegram_hook(token):
         try:
             jova_do_something(update.message)
         except Exception as e:
-#            bot.sendMessage(chat_id=update.message.chat_id, text=jova_replace('Non so cosa vuoi da me... Pussa via!'), reply_to_message_id=update.message.message_id)
-#            bot.sendMessage(chat_id=os.environ['JOVABOT_CREATOR_CHAT_ID'], text=e)
+            bot.sendMessage(chat_id=update.message.chat_id, text=jova_replace('Non so cosa vuoi da me... Pussa via!'), reply_to_message_id=update.message.message_id)
+            if CREATOR_CHAT_ID > 0:
+                bot.sendMessage(chat_id=CREATOR_CHAT_ID, text=traceback.format_exc())
             logging.exception('Something broke', e)
 
         # jova return something ffs!
@@ -166,6 +171,13 @@ def main():
     # telegram bot api token
     global TOKEN
     TOKEN = extract_token(TOKEN_PATH)
+
+    global CREATOR_CHAT_ID
+    try:
+        CREATOR_CHAT_ID = os.environ['JOVABOT_CREATOR_CHAT_ID']
+    except Exception as e:
+        logging.exception('failed to get JOVABOT_CREATOR_CHAT_ID', e)
+        CREATOR_CHAT_ID = 0
 
     global bot
     bot = telegram.Bot(token=TOKEN)
