@@ -21,10 +21,10 @@ def search_wp(name, location):
 
     try:
         r = requests.get(WHITE_PAGES_URL, params=payload)
-        logging.debug('requesting {0}', r.url)
+        logging.info('requesting url {0}'.format(r.url))
         return parse_response(r.text)
     except Exception as e:
-        logging.debug('search failed', e)
+        logging.exception('search failed {0}'.format(e))
         return None
 
 
@@ -39,10 +39,13 @@ def parse_response(text):
     soup = BeautifulSoup(text, 'html.parser')
 
     for d in soup.find_all("div", "vcard"):
-        name = d.find('h2', 'rgs').a['title']
-        phone = d.find("div", "tel").find("span", "value").text
-        address = d.find("div", "address").div.text
-        # address = address[: address.index('|')].strip()
+        try:
+            name = d.find('h2', 'rgs').a['title']
+            phone = d.find("div", "tel").find("span", "value").text
+            address = d.find("div", "address").div.text
+        except:
+            logging.exception(d.find('h2', 'rgs'))
+            continue
 
         yield wp_response(name, phone, address)
 
