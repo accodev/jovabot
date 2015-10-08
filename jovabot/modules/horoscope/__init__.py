@@ -23,7 +23,7 @@ def jova_oroscopo(message):
 
     found_signes = [x for x in signes if x in message]
 
-    logging.debug("oroscopo richiesto per i segni: {0}", found_signes)
+    logging.debug("oroscopo richiesto per i segni: {0}".format(found_signes))
 
     if not len(found_signes):
         return None
