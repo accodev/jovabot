@@ -114,7 +114,7 @@ def telegram_hook(token):
         try:
             jova_do_something(update.message)
         except Exception as e:
-            if webapp.config['CREATOR_CHAT_ID']:
+            if 'CREATOR_CHAT_ID' in webapp.config.keys():
                 bot.sendMessage(chat_id=webapp.config['CREATOR_CHAT_ID'], text='Jova rotto!')
             logging.exception('Something broke\n{0}', e)
 
