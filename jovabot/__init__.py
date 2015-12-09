@@ -8,6 +8,7 @@ import logging
 import socket
 import traceback
 import sys
+import codecs
 
 import telegram
 from flask import Flask, request, abort
@@ -30,7 +31,9 @@ webapp = Flask(__name__)
 
 # config section - change these as you like
 TOKEN_PATH = 'key.token'
-CERTIFICATE_PATH = '/etc/nginx/ssl/nginx.crt'
+CERTIFICATE_PATH = '/home/acco/dev/jovabot/fullchain.pem'
+
+sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
 
 logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)], level=logging.DEBUG, format='%(asctime)-15s|%(levelname)-8s|%(process)d|%(name)s|%(module)s|%(message)s')
 
@@ -147,9 +150,10 @@ def webhook(command):
 
 def webhook_set():
     # use your nginx.crt man!
-    with open(CERTIFICATE_PATH) as c:
-        webhook_url = socket.gethostname() + '/jovabot/telegram/' + TOKEN
-        res = bot.setWebhook(webhook_url=webhook_url, certificate=c.buffer)
+    #with open(CERTIFICATE_PATH) as c:
+    webhook_url = socket.gethostname() + '/jovabot/telegram/' + extract_token(TOKEN_PATH)
+    logging.debug(webhook_url)
+    res = bot.setWebhook(webhook_url=webhook_url)
     return res
 
 
