@@ -37,7 +37,7 @@ def jova_answer_learned(message):
 def jova_learn(message):
     global learned
 
-    rx = r'jova,?\sse ti (?:dico|dicono)\s([\w\s\?\!]+)\stu rispondi\s([\w\s\?\!]+)'
+    rx = r'jova,?\sse ti (?:dico|dicono)\s([\w\s\?\!\']+)\stu rispondi\s([\w\s\?\!\']+)'
     m = re.match(rx, message)
 
     if not m:
@@ -82,3 +82,11 @@ def read_key(key):
 
         return random.choice(vl)
     return None
+    
+def clear():
+    path_ = os.path.join(os.path.dirname(__file__), 'learned.db')
+    if os.path.exists(path_):
+        os.remove(path_)
+        
+    global learned
+    learned = {}
