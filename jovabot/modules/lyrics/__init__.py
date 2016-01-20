@@ -8,6 +8,8 @@ from whoosh.index import create_in, open_dir
 from whoosh.fields import Schema, TEXT
 from whoosh.qparser import QueryParser
 
+import logging
+
 import random
 
 ix = None
@@ -22,7 +24,7 @@ def init():
 
     if not exists(index_dir):
         mkdir(index_dir)
-    print('create lyrics index')
+    logging.debug('create lyrics index')
     ix = create_in(index_dir, schema)
     #else:
     #    print('open lyrics index')
@@ -48,6 +50,9 @@ def init():
 
 def get_answer(message):
 
+    if '/' in message[0]:
+        return None
+
     rx = r'jova,?\s(.+)$'
     m = re.match(rx, message)
     if not m or len(m.groups(1)) < 1:
@@ -58,8 +63,6 @@ def get_answer(message):
     search_terms = m.groups(1)[0]
     parser = QueryParser("content", ix.schema)
     qry = parser.parse(search_terms)
-
-    print(qry)
 
     with ix.searcher() as searcher:
         results = searcher.search(qry)
@@ -74,6 +77,6 @@ def get_answer(message):
         if result is None or 'path' not in result:
             return None
 
-        return (result['path'], False)
+        return result['path'], 'plain-text'
 
     return None
