@@ -75,8 +75,9 @@ def jova_do_something(message):
                     parse_mode = telegram.ParseMode.MARKDOWN
                 else:
                     parse_mode = None
+                logging.info("jova answer to [{0}] message_id={1} chat_id={2} :: {3}".format(str(message.from_user).encode('utf-8'), message.message_id, chat_id, str(answer).encode('utf-8')))
                 bot.sendMessage(chat_id=chat_id, text=answer, reply_to_message_id=message.message_id,
-                                parse_mode=parse_mode)
+                                parse_mode=parse_mode) 
 
 
 def jova_answer(message):
@@ -119,7 +120,8 @@ def telegram_hook(token):
         except Exception as e:
             if 'CREATOR_CHAT_ID' in webapp.config.keys():
                 bot.sendMessage(chat_id=webapp.config['CREATOR_CHAT_ID'], text='Jova rotto!')
-            logging.exception('Something broke\n{0}', e)
+            logging.exception('Something broke')
+            return "ko", 403
 
         # jova return something ffs!
         return "ok", 200
