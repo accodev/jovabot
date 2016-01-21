@@ -187,6 +187,9 @@ def main():
     global bot
     bot = telegram.Bot(token=webapp.config['TOKEN'])
 
+    if not bot:
+        sys.exit(-1)
+
     logging.debug(webapp.config)
 
 
