@@ -9,7 +9,13 @@ try:
     import pymongo
     HAVE_MONGO_DB = True
 except:
-    HAVE_MONGO_DB = False  
+    HAVE_MONGO_DB = False
+    
+try:
+    import redis
+    HAVE_REDIS = True
+except:
+    HAVE_REDIS = False      
     
 try:
     from uwsgi import sharedarea_read, sharedarea_write, sharedarea_write32, sharedarea_read32
@@ -99,7 +105,23 @@ class JovaLearnMongoDb(object):
         
     def get_all(self, key):
         return [x['text'] for x in self.tit_for_tat.find({"key": key})]
+
+class JovaLearnRedis(object):
+    def __init__(self):
+        self.client = redis.Redis('localhost')
+    
+    def jova_learn(self, tit, tat):
+        self.client.sadd(tit, tat)
+            
+    def jova_answer_learned(self, key):
+        return self.client.srandmember(key)
         
+    def clear(self):
+        self.client.flushdb()
+        
+    def get_all(self, key):
+        return self.client.smembers(key) 
+                
 impl = None
 
 def init():
@@ -108,6 +130,9 @@ def init():
     if HAVE_MONGO_DB:
         impl = JovaLearnMongoDb()
         logging.debug('learn module uses mongo-db backend')
+    elif HAVE_REDIS:
+        impl = JovaLearnRedis()
+        logging.debug('learn module uses redis backend')
     elif HAVE_SHARED_AREA:
         impl = JovaLearnSharedMemory()
         logging.debug('learn module uses uwsgi shared area backend')
