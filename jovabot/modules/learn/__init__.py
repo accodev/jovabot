@@ -13,8 +13,10 @@ def init():
 
 def get_answer(message):
     if 'se ti dico' in message and '/' not in message[0]:
+        logging.debug('learning...')
         return jova_learn(message)
     else:
+        logging.debug('handling learned answer...')
         return jova_answer_learned(message)
 
 
