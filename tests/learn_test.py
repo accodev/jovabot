@@ -6,6 +6,7 @@ from jovabot.modules import learn
 class TestLearnModule(unittest.TestCase):
 
     def setUp(self):
+        learn.init()
         learn.clear()
         
     def test_learn_one(self):
@@ -41,9 +42,12 @@ class TestLearnModule(unittest.TestCase):
         self.assertEqual(learn.get_answer("jova se ti dico ma guercio? tu rispondi come va con l'HC?"), "OK")
         self.assertEqual(learn.get_answer("jova se ti dico ma guercio? tu rispondi Guercio? Puppaaa!"), "OK")
         
-        expected_ = {"ma guercio?": ["come va con l'HC?", "Guercio? Puppaaa!"]}
+        expected_ = ["come va con l'HC?", "Guercio? Puppaaa!"]
        
-        self.assertEqual(learn.learned, expected_)       
+        self.assertEqual(learn.get_all("ma guercio?"), expected_)
+        
+    def test_key_not_found(self):
+        self.assertEqual(learn.get_answer('jova scazzi?'), None)     
 
 if __name__ == '__main__':
     unittest.main()
