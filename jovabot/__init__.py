@@ -75,7 +75,6 @@ def jova_do_something(message):
                     parse_mode = telegram.ParseMode.MARKDOWN
                 else:
                     parse_mode = None
-                logging.info("jova answer to [{0}] message_id={1} chat_id={2} :: {3}".format(str(message.from_user).encode('utf-8'), message.message_id, chat_id, str(answer).encode('utf-8')))
                 bot.sendMessage(chat_id=chat_id, text=answer, reply_to_message_id=message.message_id,
                                 parse_mode=parse_mode) 
 
@@ -151,8 +150,6 @@ def webhook(command):
 
 
 def webhook_set():
-    # use your nginx.crt man!
-    #with open(CERTIFICATE_PATH) as c:
     webhook_url = socket.gethostname() + '/jovabot/telegram/' + extract_token(TOKEN_PATH)
     logging.debug(webhook_url)
     res = bot.setWebhook(webhook_url=webhook_url)
