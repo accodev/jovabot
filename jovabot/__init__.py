@@ -33,7 +33,8 @@ webapp = Flask(__name__)
 TOKEN_PATH = 'key.token'
 CERTIFICATE_PATH = '/home/acco/dev/jovabot/fullchain.pem'
 
-sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+if os.name != 'nt':
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
 
 logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)], level=logging.DEBUG, format='%(asctime)-15s|%(levelname)-8s|%(process)d|%(name)s|%(module)s|%(message)s')
 
