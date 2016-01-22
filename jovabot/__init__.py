@@ -188,6 +188,7 @@ def main():
     bot = telegram.Bot(token=webapp.config['TOKEN'])
 
     if not bot:
+        logging.error('bot is not valid')
         sys.exit(-1)
 
     logging.debug(webapp.config)
