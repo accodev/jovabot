@@ -109,7 +109,6 @@ def init_modules():
 
 @webapp.route('/telegram/<token>', methods=['POST'])
 def telegram_hook(token):
-    #if token == webapp.config['TOKEN']:
     if token == extract_token(TOKEN_PATH):
         # retrieve the message in JSON and then transform it to Telegram object
         update = telegram.Update.de_json(request.get_json(force=True))
@@ -118,15 +117,13 @@ def telegram_hook(token):
         try:
             jova_do_something(update.message)
         except Exception as e:
-            if 'CREATOR_CHAT_ID' in webapp.config.keys():
-                bot.sendMessage(chat_id=webapp.config['CREATOR_CHAT_ID'], text='Jova rotto!')
             logging.exception('Something broke')
-            return "ko", 403
+            return "ok", 200
 
         # jova return something ffs!
         return "ok", 200
     else:
-        logging.critical('Token not accepted => token={0} - TOKEN[{1}]'.format(token, TOKEN))
+        logging.critical('Token not accepted => token={0}'.format(token))
         return "ko", 403
 
 
@@ -161,6 +158,12 @@ def webhook_delete():
     res = bot.setWebhook('')
     return res
 
+@webapp.before_request
+def check_bot():
+    if not bot:
+        logging.error('bot not valid')
+        abort(403)
+        sys.exit(-1)
 
 @webapp.before_first_request
 def main():
