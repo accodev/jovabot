@@ -5,39 +5,167 @@ import json
 import random
 import logging
 
-learned = {}
+try:
+    import pymongo
+    HAVE_MONGO_DB = True
+except:
+    HAVE_MONGO_DB = False
+    
+try:
+    import redis
+    HAVE_REDIS = True
+except:
+    HAVE_REDIS = False      
+    
+try:
+    from uwsgi import sharedarea_read, sharedarea_write, sharedarea_write32, sharedarea_read32
+    HAVE_SHARED_AREA = True
+except:
+    HAVE_SHARED_AREA = False
+
+class JovaLearnNone(object):
+    def __init__(self):
+        pass
+       
+    def jova_learn(self, tit, tat):
+        return False   
+        
+    def jova_answer_learned(self, key):
+        return None        
+    
+    def clear(self):
+        pass
+        
+class JovaLearnSharedMemory(object):
+    def __init__(self):
+        self.data = {}
+        self.id = random.randint(10, 20)
+       
+    def jova_learn(self, tit, tat):
+        if tit in self.data:
+            self.data[tit].append(tat)
+        else:
+            self.data[tit] = [tat]
+        return self.write_shared_area()
+        
+    def jova_answer_learned(self, key):
+        self.read_shared_area()
+        if key in self.data:
+            return random.choice(self.data[key])
+        return None
+        
+    def write_shared_area(self):
+        payload = json.dumps(self.data)
+        
+        # write payload len
+        sharedarea_write32(self.id, 0, len(payload))
+        
+        # write payload
+        sharedarea_write(self.id, 4, payload)
+        
+    def read_shared_area(self):
+        # read payload len
+        len_ = sharedarea_read32(self.id, 0)
+                
+        # read payload
+        if len_ > 0:
+            json_ = sharedarea_read(self.id, 4, len_)
+            self.data = json.loads(json_)
+        else:
+            self.data = {}          
+    
+    def clear(self):
+        # write zero len
+        sharedarea_write32(self.id, 0, 0)
+        
+    def get_all(key):
+        self.read_shared_area()
+        if key in self.data:
+            return self.data[key]
+        return []
+                
+class JovaLearnMongoDb(object):
+    def __init__(self):
+        self.client = pymongo.MongoClient()
+        self.db = self.client.jovabot
+        self.tit_for_tat = self.db.tit_for_tat
+    
+    def jova_learn(self, tit, tat):
+        tit_tat = { "key" : tit, "text" : tat }
+        self.tit_for_tat.insert_one(tit_tat)
+            
+    def jova_answer_learned(self, key):
+        all_ = self.get_all(key)
+        if len(all_):
+            return random.choice(self.get_all(key))
+        return None
+        
+    def clear(self):
+        self.tit_for_tat.drop()
+        
+    def get_all(self, key):
+        return [x['text'] for x in self.tit_for_tat.find({"key": key})]
+
+class JovaLearnRedis(object):
+    def __init__(self):
+        self.client = redis.Redis('localhost')
+    
+    def jova_learn(self, tit, tat):
+        self.client.sadd(tit, tat)
+            
+    def jova_answer_learned(self, key):
+        return self.client.srandmember(key)
+        
+    def clear(self):
+        self.client.flushdb()
+        
+    def get_all(self, key):
+        return self.client.smembers(key) 
+                
+impl = None
 
 def init():
-    pass
-
+    global impl
+    
+    if HAVE_MONGO_DB:
+        impl = JovaLearnMongoDb()
+        logging.debug('learn module uses mongo-db backend')
+    elif HAVE_REDIS:
+        impl = JovaLearnRedis()
+        logging.debug('learn module uses redis backend')
+    elif HAVE_SHARED_AREA:
+        impl = JovaLearnSharedMemory()
+        logging.debug('learn module uses uwsgi shared area backend')
+    else:
+        impl = JovaLearnNone()
+        logging.debug('learn module not available')
 
 def get_answer(message):
-    if 'se ti dico' in message and '/' not in message[0]:
+    if message.startswith('/'):
+        return None
+        
+    if 'se ti dico' in message and '/':
+        logging.debug('learning...')
         return jova_learn(message)
     else:
+        logging.debug('handling learned answer...')
         return jova_answer_learned(message)
-
 
 def jova_answer_learned(message):
     rx = r'jova,?\s(.+)$'
     m = re.match(rx, message)
     if not m:
         return None
-
     try:
         k = m.groups(1)[0]
-        if k in learned:
-            v = read_key(k)
-            return v
-    except:
-        pass
+        return impl.jova_answer_learned(k)
+    except Exception as e:
+        logging.exception('jova_answer_learned error')
 
     return None
 
 def jova_learn(message):
-    global learned
-
-    rx = r'jova,?\sse ti (?:dico|dicono)\s([\w\s\?\!]+)\stu rispondi\s([\w\s\?\!]+)'
+    rx = r'jova,?\sse ti (?:dico|dicono)\s([\w\s\?\!\']+)\stu rispondi\s([\w\s\?\!\']+)'
     m = re.match(rx, message)
 
     if not m:
@@ -45,40 +173,15 @@ def jova_learn(message):
 
     tokens = m.groups(1)
     if len(tokens) == 2:
-        add_and_save(tokens[0], tokens[1])
-        return 'OK'
-
+        try:
+            impl.jova_learn(tokens[0], tokens[1])        
+            return 'OK'
+        except Exception as e:
+            logging.exception('jova_learn error')
     return None
 
-def read_memory_file():
-    global learned
+def clear():
+    impl.clear()
 
-    rel = os.path.dirname(__file__)
-    with open( os.path.join(rel, 'learned.db'), encoding='utf-8' ) as fp:
-        learned = json.load(fp)
-
-def add_and_save(key, value):
-    global learned
-
-    if key not in learned:
-        learned[key] = []
-    if not value in learned[key]:
-        learned[key].append(value)
-
-    rel = os.path.dirname(__file__)
-
-    with open( os.path.join(rel, 'learned.db'), 'wt', encoding='utf-8' ) as fp:
-        json.dump(learned, fp)
-
-
-def read_key(key):
-    global learned
-    if key in learned:
-        vl = learned[key]
-        if len(vl) == 0:
-            return None
-        if len(vl) == 1:
-            return vl[0]
-
-        return random.choice(vl)
-    return None
+def get_all(key):
+    return impl.get_all(key)

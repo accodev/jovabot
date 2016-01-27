@@ -69,3 +69,4 @@ modules/lyrics/index/
 *.key
 app/modules/lyrics/index/
 jovabot/modules/lyrics/index/
+*.pem

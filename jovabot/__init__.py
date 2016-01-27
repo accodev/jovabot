@@ -6,6 +6,9 @@ import importlib
 from . import modules
 import logging
 import socket
+import traceback
+import sys
+import codecs
 
 import telegram
 from flask import Flask, request, abort
@@ -27,11 +30,13 @@ bot = None
 webapp = Flask(__name__)
 
 # config section - change these as you like
-TOKEN = '1234567890abcdefgh'
 TOKEN_PATH = 'key.token'
-CERTIFICATE_PATH = '/etc/nginx/ssl/nginx.crt'
+CERTIFICATE_PATH = '/home/acco/dev/jovabot/fullchain.pem'
 
-logging.basicConfig(filename='jovabot.log', level=logging.DEBUG)
+if os.name != 'nt':
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+
+logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)], level=logging.DEBUG, format='%(asctime)-15s|%(levelname)-8s|%(process)d|%(name)s|%(module)s|%(message)s')
 
 
 def extract_token(filename):
@@ -54,8 +59,7 @@ def jova_do_something(message):
     if message.text:
         if 'jova' in message.text.lower() or '/' in message.text[0]:  # jova, I choose you!
             logging.info(
-                "[{0}] [from {1}] [message ['{2}']]".format(datetime.datetime.now().isoformat(), message.from_user,
-                                                            message.text))
+                "[from {0}] [message ['{1}']]".format(str(message.from_user).encode('utf-8'), message.text.encode('utf-8')))
             chat_id = message.chat_id
             answer = jova_answer(message.text.lower())
             md = False
@@ -73,7 +77,7 @@ def jova_do_something(message):
                 else:
                     parse_mode = None
                 bot.sendMessage(chat_id=chat_id, text=answer, reply_to_message_id=message.message_id,
-                                parse_mode=parse_mode)
+                                parse_mode=parse_mode) 
 
 
 def jova_answer(message):
@@ -105,7 +109,7 @@ def init_modules():
 
 @webapp.route('/telegram/<token>', methods=['POST'])
 def telegram_hook(token):
-    if token == TOKEN:
+    if token == extract_token(TOKEN_PATH):
         # retrieve the message in JSON and then transform it to Telegram object
         update = telegram.Update.de_json(request.get_json(force=True))
 
@@ -113,13 +117,13 @@ def telegram_hook(token):
         try:
             jova_do_something(update.message)
         except Exception as e:
-            bot.sendMessage(chat_id=update.message.chat_id, text=jova_replace('Non so cosa vuoi da me... Pussa via!'), reply_to_message_id=update.message.message_id)
-            bot.sendMessage(chat_id=os.environ['JOVABOT_CREATOR_CHAT_ID'], text=e)
-            logging.exception('Something broke', e)
+            logging.exception('Something broke')
+            return "ok", 200
 
         # jova return something ffs!
         return "ok", 200
     else:
+        logging.critical('Token not accepted => token={0}'.format(token))
         return "ko", 403
 
 
@@ -144,10 +148,9 @@ def webhook(command):
 
 
 def webhook_set():
-    # use your nginx.crt man!
-    with open(CERTIFICATE_PATH) as c:
-        webhook_url = socket.gethostname() + '/jovabot/telegram/' + TOKEN
-        res = bot.setWebhook(webhook_url=webhook_url, certificate=c.buffer)
+    webhook_url = socket.gethostname() + '/jovabot/telegram/' + extract_token(TOKEN_PATH)
+    logging.debug(webhook_url)
+    res = bot.setWebhook(webhook_url=webhook_url)
     return res
 
 
@@ -155,6 +158,12 @@ def webhook_delete():
     res = bot.setWebhook('')
     return res
 
+@webapp.before_request
+def check_bot():
+    if not bot:
+        logging.error('bot not valid')
+        abort(403)
+        sys.exit(-1)
 
 @webapp.before_first_request
 def main():
@@ -165,11 +174,27 @@ def main():
     init_modules()
 
     # telegram bot api token
-    global TOKEN
-    TOKEN = extract_token(TOKEN_PATH)
+    try:
+        webapp.config['TOKEN'] = os.environ['JOVABOT_API_TOKEN']
+    except Exception as e:
+        logging.exception('failed to get JOVABOT_API_TOKEN', e)
+        webapp.config['TOKEN'] = extract_token(TOKEN_PATH)
+
+    # creator chat id - send exceptions to its chat_id
+    try:
+        webapp.config['CREATOR_CHAT_ID'] = os.environ['JOVABOT_CREATOR_CHAT_ID']
+    except Exception as e:
+        logging.exception('failed to get JOVABOT_CREATOR_CHAT_ID', e)
+        webapp.config['CREATOR_CHAT_ID'] = 0
 
     global bot
-    bot = telegram.Bot(token=TOKEN)
+    bot = telegram.Bot(token=webapp.config['TOKEN'])
+
+    if not bot:
+        logging.error('bot is not valid')
+        sys.exit(-1)
+
+    logging.debug(webapp.config)
 
 
 if __name__ == '__main__':
