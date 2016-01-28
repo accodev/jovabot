@@ -13,6 +13,8 @@ import codecs
 import telegram
 from flask import Flask, request, abort
 
+import botan
+
 
 # ordered by priority
 ENABLED_MODULES = [
@@ -78,6 +80,13 @@ def jova_do_something(message):
                     parse_mode = None
                 bot.sendMessage(chat_id=chat_id, text=answer, reply_to_message_id=message.message_id,
                                 parse_mode=parse_mode) 
+            # new botanio stats tracking
+            if webapp.config['BOTANIO_TOKEN']:
+                try:
+                    bt = botan.track(webapp.config['BOTANIO_TOKEN'], message.from_user, message.to_dict(), message.text)
+                    logging.info(bt)
+                except:
+                    logging.exception('failed to track stats to botan.io')
 
 
 def jova_answer(message):
@@ -186,6 +195,12 @@ def main():
     except Exception as e:
         logging.exception('failed to get JOVABOT_CREATOR_CHAT_ID', e)
         webapp.config['CREATOR_CHAT_ID'] = 0
+
+    try:
+        webapp.config['BOTANIO_TOKEN'] = os.environ['BOTANIO_API_TOKEN']
+    except Exception as e:
+        logging.exception('failed to get BOTANIO_API_TOKEN')
+        webapp.config['BOTANIO_TOKEN'] = 0
 
     global bot
     bot = telegram.Bot(token=webapp.config['TOKEN'])
