@@ -1,8 +1,7 @@
-import requests
-import re
-import sys
 import logging
+import sys
 
+import requests
 from bs4 import BeautifulSoup
 
 # White pages url
@@ -29,13 +28,6 @@ def search_wp(name, location):
 
 
 def parse_response(text):
-    name = ''
-    address = ''
-    phone = ''
-
-    # with open('wp_dump.html', 'wt', encoding='utf-8') as fp:
-    #    fp.write(text)
-
     soup = BeautifulSoup(text, 'html.parser')
 
     for d in soup.find_all("div", "vcard"):

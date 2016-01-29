@@ -1,18 +1,17 @@
 # coding=utf-8
 
+import logging
+import random
 import re
 from os import listdir, mkdir
 from os.path import isfile, join, dirname, exists
 
-from whoosh.index import create_in, open_dir
 from whoosh.fields import Schema, TEXT
+from whoosh.index import create_in
 from whoosh.qparser import QueryParser
 
-import logging
-
-import random
-
 ix = None
+
 
 def init():
     schema = Schema(title=TEXT(stored=True), path=TEXT(stored=True), content=TEXT)
@@ -26,9 +25,6 @@ def init():
         mkdir(index_dir)
     logging.debug('create lyrics index')
     ix = create_in(index_dir, schema)
-    #else:
-    #    print('open lyrics index')
-    #    ix = open_dir(index_dir)
 
     writer = ix.writer()
 
@@ -41,15 +37,14 @@ def init():
             link = cnt.splitlines()[0]
 
             writer.add_document(
-                title=file,
-                content=cnt,
-                path=link)
+                    title=file,
+                    content=cnt,
+                    path=link)
 
     writer.commit()
 
 
 def get_answer(message):
-
     if '/' in message[0]:
         return None
 
