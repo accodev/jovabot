@@ -17,5 +17,7 @@ in breve i comandi principali che potete impartire al bot:
 5. *Jova a cosa rispondi*
     1. _Risponde con tutte le condizioni (per il punto 4) a cui puo' rispondere jova_.
 
+*IL SEGUENTE COMANDO E' STATO DISABILITATO PER DEI PROBLEMI TECNICI:*
+
 6. *Jova PEZZO_DI_UNA_CANZONE* (se la condizione non e' stata soddisfatta da jova CONDIZIONE):
     1. Esempio: _jova serenata rap_ ritorna il link a shazam per poter ascoltare la canzone
