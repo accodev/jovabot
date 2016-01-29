@@ -19,8 +19,7 @@ ENABLED_MODULES = [
     'jovabot.modules.horoscope',
     'jovabot.modules.addressbook',
     'jovabot.modules.learn',
-    'jovabot.modules.random',
-    'jovabot.modules.lyrics'
+    'jovabot.modules.random'
 ]
 
 LOADED_MODULES = []
@@ -38,7 +37,7 @@ logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)], level=logging.
 def extract_token(filename):
     with open(filename, "r") as f:
         token = f.readline()
-    return token
+    return token.rstrip()
 
 
 def jova_replace(s):
@@ -112,7 +111,7 @@ def init_modules():
 
 @webapp.route('/telegram/<token>', methods=['POST'])
 def telegram_hook(token):
-    if token == webapp.config['TOKEN']:
+    if token == extract_token('key.token'): # why webapp.config['TOKEN'] doesn't work? fucking god
         # retrieve the message in JSON and then transform it to Telegram object
         update = telegram.Update.de_json(request.get_json(force=True))
 
@@ -127,7 +126,7 @@ def telegram_hook(token):
         return "ok", 200
     else:
         logging.critical('Token not accepted => token={0}'.format(token))
-        return "ko", 200  # fucking telegram keeps spamming me with the wrong token
+        abort(404) # stop spamming my ass fucking telegram
 
 
 @webapp.route('/')
@@ -151,7 +150,7 @@ def webhook(command):
 
 
 def webhook_set():
-    webhook_url = socket.gethostname() + '/jovabot/telegram/' + webapp.config['TOKEN']
+    webhook_url = socket.gethostname() + '/jovabot/telegram/' + extract_token('key.token')
     logging.debug(webhook_url)
     res = bot.setWebhook(webhook_url=webhook_url)
     return res
@@ -166,12 +165,12 @@ def gtfo():
     logging.info('stopping')
 
 
-@webapp.before_request
-def check_bot():
-    if not bot:
-        logging.error('bot not valid')
-        abort(500)
-        sys.exit(-1)
+#@webapp.before_request
+#def check_bot():
+#    if not bot:
+#        logging.error('bot not valid')
+#        abort(500)
+#        sys.exit(-1)
 
 
 def config():
