@@ -127,7 +127,7 @@ def telegram_hook(token):
         return "ok", 200
     else:
         logging.critical('Token not accepted => token={0}'.format(token))
-        return "ko", 403
+        return "ko", 200  # fucking telegram keeps spamming me with the wrong token
 
 
 @webapp.route('/')
