@@ -9,15 +9,13 @@ def init():
     global slash_commands
     slash_commands = {
         'about': jova_about,
-        'about@jovanottibot': jova_about,
         'help': jova_help,
-        'help@jovanottibot': jova_help
     }
 
 
 def get_answer(message):
     if message[0] == '/':
-        return handle_slash_command(message[1:])
+        return handle_slash_command(message[1:].split("@")[0])
     return None
 
 
