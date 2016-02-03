@@ -12,6 +12,7 @@ itsdangerous==0.24        # via flask
 Jinja2==2.8
 MarkupSafe==0.23
 py==1.4.31                # via pytest
+pymongo==3.2.1
 pytest==2.7.2
 python-telegram-bot==3.2.0
 requests==2.9.1
