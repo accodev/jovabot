@@ -4,6 +4,7 @@ In breve i comandi principali che potete impartire al bot:
 
 1. `Jova se ti dico CONDIZIONE tu rispondi RISPOSTA_ALLA_CONDIZIONE`:
     1. Salvera' su un database la condizione e la riposta a tale condizione (le risposte possono essere multiple)
+    2. La risposta non verra' salvata se la condizione e' gia presente tra quelle di `Jova a cosa rispondi`
 
 2. `Jova cercami ROBA a NOME_CITTA`:
     1. Effettua una ricerca sulle pagine bianche (http://www.paginebianche.it/)
