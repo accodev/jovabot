@@ -5,6 +5,11 @@ import random
 import re
 from os import listdir, mkdir
 from os.path import isfile, join, dirname, exists
+try:
+    import uwsgi
+except:
+    logging.exception('failed to import uwsgi')
+    no_uwsgi = True
 
 from whoosh.fields import Schema, TEXT
 from whoosh.index import create_in
@@ -19,7 +24,14 @@ def init():
                     content=TEXT)
 
     rel = dirname(__file__)
-    index_dir = join(rel, 'index')
+    index_name = 'index'
+    if no_uwsgi:
+        # attenzione: il restart provochera' la creazione di nuove cartelle
+        # ogni volta...
+        index_name += '{0}'.format(os.getpid())
+    else:
+        index_name += '{0}'.format(uwsgi.worker_id())
+    index_dir = join(rel, index_name)
 
     global ix
 
