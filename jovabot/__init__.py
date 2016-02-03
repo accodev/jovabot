@@ -18,8 +18,8 @@ ENABLED_MODULES = [
     'jovabot.modules.slash',
     'jovabot.modules.horoscope',
     'jovabot.modules.addressbook',
-    'jovabot.modules.random',
     'jovabot.modules.learn',
+    'jovabot.modules.random',
     'jovabot.modules.lyrics'
 ]
 
