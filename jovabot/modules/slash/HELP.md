@@ -1,23 +1,22 @@
-I messaggi a cui rispondera' il bot dovranno sempre contenere "jova" nella frase, fatta eccezione per i comandi speciali /help e /about.
-in breve i comandi principali che potete impartire al bot:
+I messaggi a cui rispondera' il buon jova dovranno sempre contenere ```jova``` nella frase, fatta eccezione per i comandi speciali ```/help``` e ```/about```.
 
-1. *Jova se ti dico CONDIZIONE tu rispondi RISPOSTA_ALLA_CONDIZIONE*:
-    1. _Salvera' su un database la condizione e la riposta alla condizione (le risposte possono essere multiple)_
+In breve i comandi principali che potete impartire al bot:
 
-2. *Jova cercami ROBA a NOME_CITTA*:
-    1. _Effettua una ricerca su pagine bianche_
+1. ```Jova se ti dico CONDIZIONE tu rispondi RISPOSTA_ALLA_CONDIZIONE```:
+    1. Salvera' su un database la condizione e la riposta a tale condizione (le risposte possono essere multiple)
 
-3. *Jova l'oroscopo per SEGNI_O_SEGNO*:
-    1. Esempio: _Jova l'oroscopo per sagittario vergine cancro_, risponde con l'oroscopo giornaliero per i segni elencati
+2. ```Jova cercami ROBA a NOME_CITTA```:
+    1. Effettua una ricerca sulle pagine bianche (http://www.paginebianche.it/)
 
-4. *Jova CONDIZIONE*:
-    1. Risponde con un messaggio dal file delle risposte per quella data condizione, vedere "Jova a cosa rispondi" per maggiori dettagli, per ogni condizione c'e' una lista di possibili risposte, che verranno scelte casualmente.
-    2. Esempio: _jova una perla_ - otterrete una risposta del genere: "L'occafione fa l'uomo ladro."
+3. ```Jova l'oroscopo per SEGNI_O_SEGNO```:
+    1. Esempio: ```Jova l'oroscopo per sagittario vergine cancro```, risponde con l'oroscopo giornaliero per i segni elencati
+    2. Preso dal sito http://it.horoscopofree.com
 
-5. *Jova a cosa rispondi*
-    1. _Risponde con tutte le condizioni (per il punto 4) a cui puo' rispondere jova_.
+4. ```Jova CONDIZIONE```:
+    1. Risponde con un messaggio dal file delle risposte per quella data condizione, vedere ```Jova a cosa rispondi``` per maggiori dettagli, per ogni condizione c'e' una lista di possibili risposte, che verranno scelte casualmente.
+    2. Esempio: Scrivendo ```jova una perla``` otterrete una risposta del genere: ```L'occafione fa l'uomo ladro.```
+    3. ```Jova a cosa rispondi```
+      1. Risponde con tutte le condizioni possibili ( per il punto 4 ).
 
-*IL SEGUENTE COMANDO E' STATO DISABILITATO PER DEI PROBLEMI TECNICI:*
-
-6. *Jova PEZZO_DI_UNA_CANZONE* (se la condizione non e' stata soddisfatta da jova CONDIZIONE):
-    1. Esempio: _jova serenata rap_ ritorna il link a shazam per poter ascoltare la canzone
+5. ```Jova PEZZO_DI_UNA_CANZONE``` (se la condizione non e' stata soddisfatta da ```jova CONDIZIONE```):
+    1. Esempio: ```jova serenata rap``` ritorna il link a ```shazam``` per poter ascoltare la canzone
