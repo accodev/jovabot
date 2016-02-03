@@ -16,7 +16,7 @@ def init():
 
 def get_answer(message):
     if '/' not in message[0]:
-        if 'a cosa rispondi' in message :
+        if 'a cosa rispondi' in message:
             answer = jova_help()
         else:
             answer = jova_answer_conditions(message)
@@ -33,7 +33,8 @@ def read_jova_phrases():
     rel = dirname(__file__)
     phrases_path = join(rel, 'phrases')
 
-    onlyfiles = [f for f in listdir(phrases_path) if isfile(join(phrases_path, f))]
+    onlyfiles = \
+        [f for f in listdir(phrases_path) if isfile(join(phrases_path, f))]
     for file in onlyfiles:
         with open(join(phrases_path, file), encoding="utf-8") as f:
             phrases_list[file] = f.read().splitlines()

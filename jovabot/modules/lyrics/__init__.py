@@ -14,7 +14,9 @@ ix = None
 
 
 def init():
-    schema = Schema(title=TEXT(stored=True), path=TEXT(stored=True), content=TEXT)
+    schema = Schema(title=TEXT(stored=True),
+                    path=TEXT(stored=True),
+                    content=TEXT)
 
     rel = dirname(__file__)
     index_dir = join(rel, 'index')

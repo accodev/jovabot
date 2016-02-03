@@ -28,7 +28,7 @@ def jova_help():
     help_path = os.path.join(package_directory, 'HELP.md')
     with open(help_path) as f:
         return f.read(), 'markdown'
-    
+
 
 def handle_slash_command(slash_command):
     func = slash_commands.get(slash_command, lambda: None)

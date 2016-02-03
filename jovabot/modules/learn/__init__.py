@@ -20,7 +20,8 @@ except:
     HAVE_REDIS = False
 
 try:
-    from uwsgi import sharedarea_read, sharedarea_write, sharedarea_write32, sharedarea_read32
+    from uwsgi import sharedarea_read, sharedarea_write, \
+                      sharedarea_write32, sharedarea_read32
 
     HAVE_SHARED_AREA = True
 except:
@@ -184,7 +185,8 @@ def jova_learn(message):
     tokens = m.groups(1)
     if len(tokens) == 2:
         try:
-            logging.info('learning to answer {0} to the trigger {1}'.format(tokens[1], tokens[0]))
+            logging.info('learning to answer {0} to the trigger {1}'
+                         .format(tokens[1], tokens[0]))
             impl.jova_learn(tokens[0], tokens[1])
             return 'OK'
         except:

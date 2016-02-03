@@ -30,8 +30,10 @@ webapp = Flask(__name__)
 if os.name != 'nt':
     sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
 
-logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)], level=logging.DEBUG,
-                    format='%(asctime)-15s|%(levelname)-8s|%(process)d|%(name)s|%(module)s|%(message)s')
+logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)],
+                    level=logging.DEBUG,
+                    format='%(asctime)-15s|%(levelname)-8s|'
+                           '%(process)d|%(name)s|%(module)s|%(message)s')
 
 
 def extract_token(filename):
@@ -52,10 +54,11 @@ def jova_replace(s):
 
 def jova_do_something(message):
     if message.text:
-        if 'jova' in message.text.lower() or '/' in message.text[0]:  # jova, I choose you!
-            logging.info(
-                    "[from {0}] [message ['{1}']]".format(str(message.from_user).encode('utf-8'),
-                                                          message.text.encode('utf-8')))
+        # jova, I choose you!
+        if 'jova' in message.text.lower() or '/' in message.text[0]:
+            logging.info("[from {0}] [message ['{1}']]"
+                         .format(str(message.from_user).encode('utf-8'),
+                                 message.text.encode('utf-8')))
             chat_id = message.chat_id
             answer = jova_answer(message.text.lower())
             md = False
@@ -67,16 +70,19 @@ def jova_do_something(message):
                         answer = answer[0]
                 else:
                     answer = jova_replace(answer)
-                bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+                bot.sendChatAction(chat_id=chat_id,
+                                   action=telegram.ChatAction.TYPING)
                 if md:
                     parse_mode = telegram.ParseMode.MARKDOWN
                 else:
                     parse_mode = None
-                bot.sendMessage(chat_id=chat_id, text=answer, reply_to_message_id=message.message_id,
+                bot.sendMessage(chat_id=chat_id, text=answer,
+                                reply_to_message_id=message.message_id,
                                 parse_mode=parse_mode)
                 # botanio stats tracking
                 if webapp.config['BOTANIO_TOKEN']:
-                    bt = botan.track(webapp.config['BOTANIO_TOKEN'], message.from_user, message.to_dict(),
+                    bt = botan.track(webapp.config['BOTANIO_TOKEN'],
+                                     message.from_user, message.to_dict(),
                                      message.text)
                     if bt:
                         logging.info('botan.io track result: {0}'.format(bt))
@@ -111,7 +117,8 @@ def init_modules():
 
 @webapp.route('/telegram/<token>', methods=['POST'])
 def telegram_hook(token):
-    if token == extract_token('key.token'): # why webapp.config['TOKEN'] doesn't work? fucking god
+    # why webapp.config['TOKEN'] doesn't work? fucking god
+    if token == extract_token('key.token'):
         # retrieve the message in JSON and then transform it to Telegram object
         update = telegram.Update.de_json(request.get_json(force=True))
 
@@ -120,13 +127,15 @@ def telegram_hook(token):
             jova_do_something(update.message)
         except:
             logging.exception('Something broke')
-            return "ok", 200  # since telegram keeps on sending me the same request, I give them 200.
+            # since telegram keeps on sending me the same request
+            # I give them 200.
+            return "ok", 200
 
         # jova return something ffs!
         return "ok", 200
     else:
         logging.critical('Token not accepted => token={0}'.format(token))
-        abort(404) # stop spamming my ass fucking telegram
+        abort(404)  # stop spamming my ass fucking telegram
 
 
 @webapp.route('/')
@@ -150,7 +159,8 @@ def webhook(command):
 
 
 def webhook_set():
-    webhook_url = socket.gethostname() + '/jovabot/telegram/' + extract_token('key.token')
+    webhook_url = socket.gethostname() + '/jovabot/telegram/' + \
+                  extract_token('key.token')
     logging.debug(webhook_url)
     res = bot.setWebhook(webhook_url=webhook_url)
     return res
@@ -163,14 +173,6 @@ def webhook_delete():
 
 def gtfo():
     logging.info('stopping')
-
-
-#@webapp.before_request
-#def check_bot():
-#    if not bot:
-#        logging.error('bot not valid')
-#        abort(500)
-#        sys.exit(-1)
 
 
 def config():
@@ -190,7 +192,8 @@ def config():
 
     # creator chat id
     try:
-        webapp.config['CREATOR_CHAT_ID'] = os.environ['JOVABOT_CREATOR_CHAT_ID']
+        webapp.config['CREATOR_CHAT_ID'] = \
+                                         os.environ['JOVABOT_CREATOR_CHAT_ID']
     except OSError:
         logging.exception('failed to get JOVABOT_CREATOR_CHAT_ID')
         webapp.config['CREATOR_CHAT_ID'] = 0
