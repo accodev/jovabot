@@ -19,7 +19,6 @@ ENABLED_MODULES = [
     'jovabot.modules.horoscope',
     'jovabot.modules.addressbook',
     'jovabot.modules.learn',
-    'jovabot.modules.random',
     'jovabot.modules.lyrics'
 ]
 
