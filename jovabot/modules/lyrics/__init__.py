@@ -5,15 +5,16 @@ import random
 import re
 from os import listdir, mkdir
 from os.path import isfile, join, dirname, exists
+from whoosh.fields import Schema, TEXT
+from whoosh.index import create_in
+from whoosh.qparser import QueryParser
+
+no_uwsgi = False
 try:
     import uwsgi
 except:
     logging.exception('failed to import uwsgi')
     no_uwsgi = True
-
-from whoosh.fields import Schema, TEXT
-from whoosh.index import create_in
-from whoosh.qparser import QueryParser
 
 ix = None
 
@@ -25,6 +26,7 @@ def init():
 
     rel = dirname(__file__)
     index_name = 'index'
+    global no_uwsgi
     if no_uwsgi:
         # attenzione: il restart provochera' la creazione di nuove cartelle
         # ogni volta...
