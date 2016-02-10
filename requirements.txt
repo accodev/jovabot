@@ -8,6 +8,7 @@ beautifulsoup4==4.4.0
 feedparser==5.2.1
 Flask==0.10.1
 future==0.15.2            # via python-telegram-bot
+fuzzywuzzy==0.8.1
 itsdangerous==0.24        # via flask
 Jinja2==2.8
 MarkupSafe==0.23
