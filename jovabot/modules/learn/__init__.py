@@ -213,8 +213,8 @@ def jova_fuzzy_answer(key):
     if choosen_key:
         if choosen_key[1] < 80:
             logging.warning('found a key which is **almost** the requested[{0}] - found[{1}]'
-                            .format(key, choosen_key))
-        return impl.jova_answer_for_key(choosen_key)
+                            .format(key, choosen_key[0]))
+        return impl.jova_answer_for_key(choosen_key[0])
     return None
 
 
