@@ -3,7 +3,7 @@ import json
 import logging
 import random
 import re
-from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 
 try:
     import pymongo
@@ -209,16 +209,13 @@ def jova_learn(message):
 
 def jova_fuzzy_answer(key):
     keys = impl.jova_keys()
-    possible_keys = []
-    for k in keys:
-        if fuzz.partial_ratio(key, k) > 80:
-            possible_keys.append(k)
-    choosen_key = random.choice(possible_keys)
-    return impl.jova_answer_for_key(choosen_key)
-
-
-def jova_random_answer(answers):
-    pass
+    choosen_key = process.extractOne(key, keys)
+    if choosen_key:
+        if choosen_key[1] < 80:
+            logging.warning('found a key which is **almost** the requested[{0}] - found[{1}]'
+                            .format(key, choosen_key))
+        return impl.jova_answer_for_key(choosen_key)
+    return None
 
 
 def clear():
