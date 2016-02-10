@@ -1,9 +1,9 @@
 # coding=utf-8
-import re
-import os
 import json
-import random
 import logging
+import random
+import re
+from fuzzywuzzy import fuzz
 
 try:
     import pymongo
@@ -35,7 +35,10 @@ class JovaLearnNone(object):
     def jova_learn(self, tit, tat):
         return False
 
-    def jova_answer_learned(self, key):
+    def jova_keys(self):
+        return None
+
+    def jova_answer_for_key(self, key):
         return None
 
     def clear(self):
@@ -54,7 +57,11 @@ class JovaLearnSharedMemory(object):
             self.data[tit] = [tat]
         return self.write_shared_area()
 
-    def jova_answer_learned(self, key):
+    def jova_keys(self):
+        self.read_shared_area()
+        return self.data
+
+    def jova_answer_for_key(self, key):
         self.read_shared_area()
         if key in self.data:
             return random.choice(self.data[key])
@@ -101,7 +108,10 @@ class JovaLearnMongoDb(object):
         tit_tat = {"key": tit, "text": tat}
         self.tit_for_tat.insert_one(tit_tat)
 
-    def jova_answer_learned(self, key):
+    def jova_keys(self):
+        return self.tit_for_tat.distinct("key")
+
+    def jova_answer_for_key(self, key):
         all_ = self.get_all(key)
         if len(all_):
             return random.choice(self.get_all(key))
@@ -121,7 +131,10 @@ class JovaLearnRedis(object):
     def jova_learn(self, tit, tat):
         self.client.sadd(tit, tat)
 
-    def jova_answer_learned(self, key):
+    def jova_keys(self):
+        pass
+
+    def jova_answer_for_key(self, key):
         return self.client.srandmember(key)
 
     def clear(self):
@@ -168,8 +181,8 @@ def jova_answer_learned(message):
         return None
     try:
         k = m.groups(1)[0]
-        return impl.jova_answer_learned(k)
-    except Exception:
+        return jova_fuzzy_answer(k)
+    except:
         logging.exception('jova_answer_learned error')
 
     return None
@@ -183,7 +196,7 @@ def jova_learn(message):
         return None
 
     tokens = m.groups(1)
-    if len(tokens) == 2:
+    if len(tokens) == 2 and len(tokens[0]) > 3:
         try:
             logging.info('learning to answer {0} to the trigger {1}'
                          .format(tokens[1], tokens[0]))
@@ -192,6 +205,20 @@ def jova_learn(message):
         except:
             logging.exception('jova_learn error')
     return None
+
+
+def jova_fuzzy_answer(key):
+    keys = impl.jova_keys()
+    possible_keys = []
+    for k in keys:
+        if fuzz.partial_ratio(key, k) > 80:
+            possible_keys.append(k)
+    choosen_key = random.choice(possible_keys)
+    return impl.jova_answer_for_key(choosen_key)
+
+
+def jova_random_answer(answers):
+    pass
 
 
 def clear():

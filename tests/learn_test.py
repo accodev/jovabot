@@ -49,6 +49,10 @@ class TestLearnModule(unittest.TestCase):
     def test_key_not_found(self):
         self.assertEqual(learn.get_answer('jova scazzi?'), None)
 
+    def test_learn_one_trigger_not_precise(self):
+        self.assertEqual(learn.get_answer('jova se ti dico perla tu rispondi abito non fa il monaco'), "OK")
+        self.assertEqual(learn.get_answer('jova una perla?'), "abito non fa il monaco")
+
 
 if __name__ == '__main__':
     unittest.main()
