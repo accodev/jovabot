@@ -9,3 +9,4 @@ requests
 six
 pymongo
 fuzzywuzzy
+python-Levenshtein
