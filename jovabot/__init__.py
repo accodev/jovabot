@@ -83,7 +83,7 @@ def jova_do_something(message):
                 if webapp.config['BOTANIO_TOKEN']:
                     bt = botan.track(webapp.config['BOTANIO_TOKEN'],
                                      message.from_user, message.to_dict(),
-                                     message.text)
+                                     message.text.lower())
                     if bt:
                         logging.info('botan.io track result: {0}'.format(bt))
 
@@ -127,15 +127,12 @@ def telegram_hook(token):
             jova_do_something(update.message)
         except:
             logging.exception('Something broke')
-            # since telegram keeps on sending me the same request
-            # I give them 200.
-            return "ok", 200
 
         # jova return something ffs!
         return "ok", 200
     else:
         logging.critical('Token not accepted => token={0}'.format(token))
-        abort(404)  # stop spamming my ass fucking telegram
+        return "ko", 404  # stop spamming my ass fucking telegram
 
 
 @webapp.route('/')
@@ -151,7 +148,7 @@ def webhook(command):
         res = webhook_delete()
     else:
         res = 'unsupported command {0}'.format(command)
-        abort(403)
+        return res, 403
 
     logging.info(res)
 

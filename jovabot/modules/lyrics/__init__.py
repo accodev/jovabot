@@ -3,6 +3,7 @@
 import logging
 import random
 import re
+import os
 from os import listdir, mkdir
 from os.path import isfile, join, dirname, exists
 from whoosh.fields import Schema, TEXT
