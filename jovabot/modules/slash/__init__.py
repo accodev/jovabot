@@ -9,15 +9,13 @@ def init():
     global slash_commands
     slash_commands = {
         'about': jova_about,
-        'about@jovanottibot': jova_about,
         'help': jova_help,
-        'help@jovanottibot': jova_help
     }
 
 
 def get_answer(message):
     if message[0] == '/':
-        return handle_slash_command(message[1:])
+        return handle_slash_command(message[1:].split("@")[0])
     return None
 
 
@@ -30,10 +28,12 @@ def jova_help():
     help_path = os.path.join(package_directory, 'HELP.md')
     with open(help_path) as f:
         return f.read(), 'markdown'
-    
+
 
 def handle_slash_command(slash_command):
     func = slash_commands.get(slash_command, lambda: None)
+    if func:
+        logging.info('slash_command requested => [{0}]'.format(slash_command))
     return func()
 
 

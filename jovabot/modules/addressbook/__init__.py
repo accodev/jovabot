@@ -2,6 +2,7 @@
 from . import paginebianche
 import re
 
+
 def init():
     pass
 
@@ -13,7 +14,8 @@ def get_answer(message):
 
 
 def jova_paginebianche(message):
-    rx = r'jova,?\s(?:cercami|trovami|cerca|trova|paginebianche)\s([\w\s]+)\s(?:a|ad|in)\s([\w\s]+)'
+    rx = r'jova,?\s(?:cercami|trovami|cerca|trova|paginebianche)' \
+          '\s([\w\s]+)\s(?:a|ad|in)\s([\w\s]+)'
     m = re.match(rx, message)
 
     if not m:

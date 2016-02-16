@@ -57,16 +57,14 @@ docs/_build/
 target/
 
 .idea/
-key.token
+key.token*
 
 *.orig
-modules/lyrics/index/
 
 *.db
 
 *.pid
 *.crt
 *.key
-app/modules/lyrics/index/
-jovabot/modules/lyrics/index/
+jovabot/modules/lyrics/index*/
 *.pem

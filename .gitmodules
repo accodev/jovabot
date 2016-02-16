@@ -1,0 +1,3 @@
+[submodule "botanio"]
+	path = botanio
+	url = https://github.com/botanio/sdk
