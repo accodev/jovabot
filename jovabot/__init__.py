@@ -8,7 +8,7 @@ import socket
 import sys
 import codecs
 import telegram
-from flask import Flask, request, abort
+from flask import Flask, request
 from botanio import botan
 import atexit
 
@@ -153,8 +153,7 @@ def webhook(command):
 
 
 def webhook_set():
-    webhook_url = str(webapp.config['BASE_ADDRESS']) + '/telegram/' + \
-                  str(webapp.config['TOKEN'])
+    webhook_url = '{0}/telegram/{1}'.format(str(webapp.config['BASE_ADDRESS']), str(webapp.config['TOKEN']))
     logging.debug(webhook_url)
     res = bot.setWebhook(webhook_url=webhook_url)
     return res
@@ -186,8 +185,7 @@ def config():
 
     # creator chat id
     try:
-        webapp.config['CREATOR_CHAT_ID'] = \
-                                         os.environ['JOVABOT_CREATOR_CHAT_ID']
+        webapp.config['CREATOR_CHAT_ID'] = os.environ['JOVABOT_CREATOR_CHAT_ID']
     except (OSError, KeyError):
         logging.exception('failed to get JOVABOT_CREATOR_CHAT_ID')
         webapp.config['CREATOR_CHAT_ID'] = 0
@@ -202,7 +200,7 @@ def config():
     # jovabot base address
     try:
         webapp.config['BASE_ADDRESS'] = socket.gethostname() + '/' + os.environ['JOVABOT_WEBAPP_NAME']
-    except (OSError, KeyError): # socket.gethostname() could possibly return an exception whose base class is OSError
+    except (OSError, KeyError):  # socket.gethostname() could possibly return an exception whose base class is OSError
         logging.exception('failed to set BASE_ADDRESS')
         webapp.config['BASE_ADDRESS'] = 0
 
