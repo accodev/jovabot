@@ -14,14 +14,16 @@ import atexit
 
 
 # ordered by priority
+global ENABLED_MODULES
 ENABLED_MODULES = [
     'jovabot.modules.slash',
     'jovabot.modules.horoscope',
     'jovabot.modules.addressbook',
-    'jovabot.modules.learn',
-    'jovabot.modules.lyrics'
+    'jovabot.modules.lyrics',
+    'jovabot.modules.learn'
 ]
 
+global LOADED_MODULES
 LOADED_MODULES = []
 
 bot = None
@@ -86,11 +88,11 @@ def jova_do_something(message):
                                      message.text.lower())
                     if bt:
                         logging.info('botan.io track result: {0}'.format(bt))
+    elif message.sticker:
+        logging.info('from [{0}] sticker[{1}'.format(str(message.from_user).encode('utf-8'), message.sticker))
 
 
 def jova_answer(message):
-    global LOADED_MODULES
-
     for mod in LOADED_MODULES:
         answer = mod.get_answer(message)
         if answer:
@@ -99,9 +101,6 @@ def jova_answer(message):
 
 
 def load_modules():
-    global LOADED_MODULES
-    global ENABLED_MODULES
-
     for p in ENABLED_MODULES:
         mod = importlib.import_module(p, 'jovabot.modules')
         if mod:
@@ -110,7 +109,6 @@ def load_modules():
 
 
 def init_modules():
-    global LOADED_MODULES
     for m in LOADED_MODULES:
         m.init()
 
@@ -118,7 +116,8 @@ def init_modules():
 @webapp.route('/telegram/<token>', methods=['POST'])
 def telegram_hook(token):
     # why webapp.config['TOKEN'] doesn't work? fucking god
-    if token == extract_token('key.token'):
+    my_token = str(webapp.config['TOKEN'])
+    if token == my_token:
         # retrieve the message in JSON and then transform it to Telegram object
         update = telegram.Update.de_json(request.get_json(force=True))
 
@@ -131,7 +130,7 @@ def telegram_hook(token):
         # jova return something ffs!
         return "ok", 200
     else:
-        logging.critical('Token not accepted => token={0}'.format(token))
+        logging.critical('Token not accepted => token={0} is not my_token={1}'.format(token, my_token))
         return "ko", 404  # stop spamming my ass fucking telegram
 
 
@@ -156,8 +155,8 @@ def webhook(command):
 
 
 def webhook_set():
-    webhook_url = socket.gethostname() + '/jovabot/telegram/' + \
-                  extract_token('key.token')
+    webhook_url = str(webapp.config['BASE_ADDRESS']) + '/telegram/' + \
+                  str(webapp.config['TOKEN'])
     logging.debug(webhook_url)
     res = bot.setWebhook(webhook_url=webhook_url)
     return res
@@ -176,14 +175,14 @@ def config():
     # fallback api token path - only used if JOVABOT_API_TOKEN is not found
     try:
         webapp.config['TOKEN_PATH'] = os.environ['JOVABOT_TELEGRAM_TOKEN_PATH']
-    except OSError:
+    except (OSError, KeyError):
         logging.exception('failed to get JOVABOT_TELEGRAM_TOKEN_PATH')
         webapp.config['TOKEN_PATH'] = 0
 
     # telegram bot api token
     try:
         webapp.config['TOKEN'] = os.environ['JOVABOT_API_TOKEN']
-    except OSError:
+    except (OSError, KeyError):
         logging.exception('failed to get JOVABOT_API_TOKEN')
         webapp.config['TOKEN'] = extract_token(webapp.config['TOKEN_PATH'])
 
@@ -191,16 +190,23 @@ def config():
     try:
         webapp.config['CREATOR_CHAT_ID'] = \
                                          os.environ['JOVABOT_CREATOR_CHAT_ID']
-    except OSError:
+    except (OSError, KeyError):
         logging.exception('failed to get JOVABOT_CREATOR_CHAT_ID')
         webapp.config['CREATOR_CHAT_ID'] = 0
 
     # botan.io api token
     try:
         webapp.config['BOTANIO_TOKEN'] = os.environ['BOTANIO_API_TOKEN']
-    except OSError:
+    except (OSError, KeyError):
         logging.exception('failed to get BOTANIO_API_TOKEN')
         webapp.config['BOTANIO_TOKEN'] = 0
+
+    # jovabot base address
+    try:
+        webapp.config['BASE_ADDRESS'] = socket.gethostname() + '/' + os.environ['JOVABOT_WEBAPP_NAME']
+    except (OSError, KeyError): # socket.gethostname() could possibly return an exception whose base class is OSError
+        logging.exception('failed to set BASE_ADDRESS')
+        webapp.config['BASE_ADDRESS'] = 0
 
 
 @webapp.before_first_request

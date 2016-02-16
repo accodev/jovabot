@@ -10,6 +10,7 @@ from whoosh.fields import Schema, TEXT
 from whoosh.index import create_in
 from whoosh.qparser import QueryParser
 
+global no_uwsgi
 no_uwsgi = False
 try:
     import uwsgi
@@ -27,20 +28,21 @@ def init():
 
     rel = dirname(__file__)
     index_name = 'index'
-    global no_uwsgi
     if no_uwsgi:
         # attenzione: il restart provochera' la creazione di nuove cartelle
         # ogni volta...
         index_name += '{0}'.format(os.getpid())
     else:
         index_name += '{0}'.format(uwsgi.worker_id())
-    index_dir = join(rel, index_name)
 
-    global ix
+    index_dir = join(rel, index_name)
 
     if not exists(index_dir):
         mkdir(index_dir)
+
     logging.debug('create lyrics index')
+
+    global ix
     ix = create_in(index_dir, schema)
 
     writer = ix.writer()
@@ -69,8 +71,6 @@ def get_answer(message):
     m = re.match(rx, message)
     if not m or len(m.groups(1)) < 1:
         return None
-
-    global ix
 
     search_terms = m.groups(1)[0]
     parser = QueryParser("content", ix.schema)
