@@ -6,4 +6,5 @@ strictness: medium
 pep8:
   full: true
 pylint:
-  disable: logging-format-interpolation
+  disable:
+    - logging-format-interpolation
