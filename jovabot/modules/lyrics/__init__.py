@@ -10,7 +10,6 @@ from whoosh.fields import Schema, TEXT
 from whoosh.index import create_in
 from whoosh.qparser import QueryParser
 
-global no_uwsgi
 no_uwsgi = False
 try:
     import uwsgi

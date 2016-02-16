@@ -32,6 +32,8 @@ def jova_help():
 
 def handle_slash_command(slash_command):
     func = slash_commands.get(slash_command, lambda: None)
+    if func:
+        logging.info('slash_command requested => [{0}]'.format(slash_command))
     return func()
 
 
