@@ -14,7 +14,6 @@ import atexit
 
 
 # ordered by priority
-global ENABLED_MODULES
 ENABLED_MODULES = [
     'jovabot.modules.slash',
     'jovabot.modules.horoscope',
@@ -23,7 +22,6 @@ ENABLED_MODULES = [
     'jovabot.modules.learn'
 ]
 
-global LOADED_MODULES
 LOADED_MODULES = []
 
 bot = None
