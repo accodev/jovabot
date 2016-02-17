@@ -61,12 +61,13 @@ def jova_do_something(message):
                                  message.text.encode('utf-8')))
             chat_id = message.chat_id
             answer = jova_answer(message.text.lower())
-            if answer and isinstance(answer, tuple):
+            logging.info('answer => [{}]'.format(answer))
+            if answer and isinstance(answer, tuple) and answer[0]:
                 formatting = answer[1]
                 if 'jovaize' in formatting:
                     answer = jovaize(answer[0])
                 else:
-                    answer = answer[0]  # dont jovaize!
+                    answer = answer[0]  # don't jovaize!
                 bot.sendChatAction(chat_id=chat_id,
                                    action=telegram.ChatAction.TYPING)
                 # markdown-formatted messsage?
@@ -87,7 +88,7 @@ def jova_do_something(message):
                                      message.from_user, message.to_dict(),
                                      message.text.lower())
                     if bt:
-                        logging.info('botan.io track result: {0}'.format(bt))
+                        logging.info('botan.io track result: [{0}]'.format(bt))
 
 
 def jova_answer(message):
