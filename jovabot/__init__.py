@@ -75,7 +75,7 @@ def jova_do_something(message):
                     parse_mode = telegram.ParseMode.MARKDOWN
                 # are we handling a sticker?
                 if 'sticker' in formatting:
-                    bot.sendSticker(chat_id=chat_id, reply_to_message_id=message.message_id, file_id=answer)
+                    bot.sendSticker(chat_id=chat_id, reply_to_message_id=message.message_id, sticker=answer)
                 else:
                     # otherwise, send a normal message
                     bot.sendMessage(chat_id=chat_id, text=answer,
