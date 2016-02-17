@@ -20,4 +20,4 @@ In breve i comandi principali che potete impartire al bot:
       1. Risponde con tutte le condizioni possibili ( per il punto 4 ).
 
 5. `Jova canzone PEZZO_DI_UNA_CANZONE` (se la condizione non e' stata soddisfatta da `jova CONDIZIONE`):
-    1. Esempio: `jova serenata rap` ritorna il link a `shazam` per poter ascoltare la canzone
+    1. Esempio: `jova canzone serenata rap` ritorna il link a `shazam` per poter ascoltare la canzone
