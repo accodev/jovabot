@@ -89,5 +89,3 @@ def get_answer(message):
             return None
 
         return result['path'], 'plain-text'
-
-    return None
