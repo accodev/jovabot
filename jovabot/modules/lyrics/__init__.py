@@ -66,7 +66,7 @@ def get_answer(message):
     if '/' in message[0]:
         return None
 
-    rx = r'jova,?\s(.+)$'
+    rx = r'jova canzone,?\s(.+)$'
     m = re.match(rx, message)
     if not m or len(m.groups(1)) < 1:
         return None
