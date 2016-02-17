@@ -9,7 +9,7 @@ def init():
 
 def get_answer(message):
     if 'oroscopo' in message and '/' not in message[0]:
-        return jova_oroscopo(message)
+        return jova_oroscopo(message), 'jovaize'
     return None
 
 

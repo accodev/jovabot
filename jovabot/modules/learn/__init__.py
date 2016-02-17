@@ -171,7 +171,7 @@ def get_answer(message):
     if 'se ti dico' in message and '/':
         return jova_learn(message)
     else:
-        return jova_answer_learned(message)
+        return jova_answer_learned(message), 'jovaize'
 
 
 def jova_answer_learned(message):
@@ -201,7 +201,8 @@ def jova_learn(message):
             logging.info('learning to answer {0} to the trigger {1}'
                          .format(tokens[1], tokens[0]))
             impl.jova_learn(tokens[0], tokens[1])
-            return 'OK'
+            # file_id = BQADBAADkgADwThpBr2dKDwqptsXAg - SAITAMA_OK
+            return 'BQADBAADkgADwThpBr2dKDwqptsXAg', 'sticker'
         except:
             logging.exception('jova_learn error')
     return None

@@ -42,7 +42,7 @@ def extract_token(filename):
     return token.rstrip()
 
 
-def jova_replace(s):
+def jovaize(s):
     return s \
         .replace('s', 'f') \
         .replace('x', 'f') \
@@ -61,33 +61,33 @@ def jova_do_something(message):
                                  message.text.encode('utf-8')))
             chat_id = message.chat_id
             answer = jova_answer(message.text.lower())
-            md = False
-            if answer:
-                if isinstance(answer, tuple):
-                    if answer[1]:
-                        if answer[1] == 'markdown':
-                            md = True
-                        answer = answer[0]
+            if answer and isinstance(answer, tuple):
+                formatting = answer[1]
+                if 'jovaize' in formatting:
+                    answer = jovaize(answer[0])
                 else:
-                    answer = jova_replace(answer)
+                    answer = answer[0]  # dont jovaize!
                 bot.sendChatAction(chat_id=chat_id,
                                    action=telegram.ChatAction.TYPING)
-                if md:
+                # markdown-formatted messsage?
+                parse_mode = None
+                if 'markdown' in formatting:
                     parse_mode = telegram.ParseMode.MARKDOWN
+                # are we handling a sticker?
+                if 'sticker' in formatting:
+                    bot.sendSticker(chat_id=chat_id, reply_to_message_id=message.message_id, sticker=answer)
                 else:
-                    parse_mode = None
-                bot.sendMessage(chat_id=chat_id, text=answer,
-                                reply_to_message_id=message.message_id,
-                                parse_mode=parse_mode)
-                # botanio stats tracking
+                    # otherwise, send a normal message
+                    bot.sendMessage(chat_id=chat_id, text=answer,
+                                    reply_to_message_id=message.message_id,
+                                    parse_mode=parse_mode)
+                # botan.io stats tracking
                 if webapp.config['BOTANIO_TOKEN']:
                     bt = botan.track(webapp.config['BOTANIO_TOKEN'],
                                      message.from_user, message.to_dict(),
                                      message.text.lower())
                     if bt:
                         logging.info('botan.io track result: {0}'.format(bt))
-    elif message.sticker:
-        logging.info('from [{0}] sticker[{1}'.format(str(message.from_user).encode('utf-8'), message.sticker))
 
 
 def jova_answer(message):
@@ -113,23 +113,19 @@ def init_modules():
 
 @webapp.route('/telegram/<token>', methods=['POST'])
 def telegram_hook(token):
-    # why webapp.config['TOKEN'] doesn't work? fucking god
     my_token = str(webapp.config['TOKEN'])
     if token == my_token:
-        # retrieve the message in JSON and then transform it to Telegram object
         update = telegram.Update.de_json(request.get_json(force=True))
 
-        # do something, man!
         try:
             jova_do_something(update.message)
         except:
             logging.exception('Something broke')
 
-        # jova return something ffs!
         return "ok", 200
     else:
         logging.critical('Token not accepted => token={0} is not my_token={1}'.format(token, my_token))
-        return "ko", 404  # stop spamming my ass fucking telegram
+        return "ko", 404
 
 
 @webapp.route('/')
