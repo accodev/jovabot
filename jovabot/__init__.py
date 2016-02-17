@@ -61,33 +61,36 @@ def jova_do_something(message):
                                  message.text.encode('utf-8')))
             chat_id = message.chat_id
             answer = jova_answer(message.text.lower())
-            if answer and isinstance(answer, tuple):
-                formatting = answer[1]
-                if 'jovaize' in formatting:
-                    answer = jovaize(answer[0])
+            if answer:
+                if isinstance(answer, tuple):
+                    formatting = answer[1]
+                    if 'jovaize' in formatting:
+                        answer = jovaize(answer[0])
+                    else:
+                        answer = answer[0]  # dont jovaize!
+                    bot.sendChatAction(chat_id=chat_id,
+                                       action=telegram.ChatAction.TYPING)
+                    # markdown-formatted messsage?
+                    parse_mode = None
+                    if 'markdown' in formatting:
+                        parse_mode = telegram.ParseMode.MARKDOWN
+                    # are we handling a sticker?
+                    if 'sticker' in formatting:
+                        bot.sendSticker(chat_id=chat_id, reply_to_message_id=message.message_id, sticker=answer)
+                    else:
+                        # otherwise, send a normal message
+                        bot.sendMessage(chat_id=chat_id, text=answer,
+                                        reply_to_message_id=message.message_id,
+                                        parse_mode=parse_mode)
+                    # botan.io stats tracking
+                    if webapp.config['BOTANIO_TOKEN']:
+                        bt = botan.track(webapp.config['BOTANIO_TOKEN'],
+                                         message.from_user, message.to_dict(),
+                                         message.text.lower())
+                        if bt:
+                            logging.info('botan.io track result: {0}'.format(bt))
                 else:
-                    answer = answer[0]  # dont jovaize!
-                bot.sendChatAction(chat_id=chat_id,
-                                   action=telegram.ChatAction.TYPING)
-                # markdown-formatted messsage?
-                parse_mode = None
-                if 'markdown' in formatting:
-                    parse_mode = telegram.ParseMode.MARKDOWN
-                # are we handling a sticker?
-                if 'sticker' in formatting:
-                    bot.sendSticker(chat_id=chat_id, reply_to_message_id=message.message_id, sticker=answer)
-                else:
-                    # otherwise, send a normal message
-                    bot.sendMessage(chat_id=chat_id, text=answer,
-                                    reply_to_message_id=message.message_id,
-                                    parse_mode=parse_mode)
-                # botan.io stats tracking
-                if webapp.config['BOTANIO_TOKEN']:
-                    bt = botan.track(webapp.config['BOTANIO_TOKEN'],
-                                     message.from_user, message.to_dict(),
-                                     message.text.lower())
-                    if bt:
-                        logging.info('botan.io track result: {0}'.format(bt))
+                    logging.warning('answer is not a tuple => {}'.format(answer))
 
 
 def jova_answer(message):
