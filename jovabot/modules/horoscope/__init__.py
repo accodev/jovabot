@@ -8,7 +8,7 @@ def init():
 
 
 def get_answer(message):
-    if 'oroscopo' in message and '/' not in message[0]:
+    if 'oroscopo' in message and not message.startswith('/'):
         return jova_oroscopo(message), 'jovaize'
     return None
 
@@ -30,7 +30,7 @@ def jova_oroscopo(message):
     found = False
     out = ''
     for o in oroscopy.get(found_signes):
-        out += '{0}\n{1}\n'.format(o.sign, o.text)
+        out += '{0}\n{1}\n'.format(o.sign.upper(), o.text)
         found = True
 
     if not found:

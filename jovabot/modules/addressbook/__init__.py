@@ -8,7 +8,7 @@ def init():
 
 
 def get_answer(message):
-    if 'cerca' in message and '/' not in message[0]:
+    if not message.startswith('/'):
         return jova_paginebianche(message), 'jovaize'
     return None
 

@@ -3,6 +3,7 @@ import json
 import logging
 import random
 import re
+import os
 from fuzzywuzzy import process
 
 try:
@@ -26,6 +27,12 @@ try:
     HAVE_SHARED_AREA = True
 except:
     HAVE_SHARED_AREA = False
+
+use_dict_db = os.environ.get('USE_DICT_DB')
+if use_dict_db and use_dict_db == '1':
+    HAVE_DICT_DB = True
+else:
+    HAVE_DICT_DB = False
 
 
 class JovaLearnNone(object):
@@ -144,6 +151,26 @@ class JovaLearnRedis(object):
         return self.client.smembers(key)
 
 
+class JovaLearnDict(object):
+    def __init__(self):
+        self.learned = {}
+
+    def jova_learn(self, tit, tat):
+        self.learned[tit].append(tat)
+
+    def jova_keys(self):
+        pass
+
+    def jova_answer_for_key(self, key):
+        pass
+
+    def clear(self):
+        pass
+
+    def get_all(self, key):
+        pass
+
+
 impl = None
 
 
@@ -159,6 +186,9 @@ def init():
     elif HAVE_SHARED_AREA:
         impl = JovaLearnSharedMemory()
         logging.debug('learn module uses uwsgi shared area backend')
+    elif HAVE_DICT_DB:
+        impl = JovaLearnDict()
+        logging.debug('learn module uses dictionary backend')
     else:
         impl = JovaLearnNone()
         logging.debug('learn module not available')

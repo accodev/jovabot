@@ -1,0 +1,10 @@
+Flask==0.10.1
+python-telegram-bot==3.2.0
+Whoosh==2.7.0
+feedparser==5.2.1
+pytest==2.7.2
+beautifulsoup4==4.4.0
+requests
+six
+fuzzywuzzy
+python-Levenshtein
