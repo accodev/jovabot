@@ -159,16 +159,16 @@ class JovaLearnDict(object):
         self.learned[tit].append(tat)
 
     def jova_keys(self):
-        pass
+        return self.learned.keys()
 
     def jova_answer_for_key(self, key):
-        pass
+        return random.choice(self.learned.get(key))
 
     def clear(self):
-        pass
+        self.learned.clear()
 
     def get_all(self, key):
-        pass
+        return self.learned[key]
 
 
 impl = None
