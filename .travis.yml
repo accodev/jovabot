@@ -2,7 +2,7 @@ language: python
 python:
   - "3.4"
   - "3.5"
-install: "pip install -r test-requirements.txt"
+install: "pip install -r reqs/test-requirements.txt"
 script: "py.test tests"
 env:
   - USE_MEMORY_DB=1
