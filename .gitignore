@@ -56,18 +56,15 @@ docs/_build/
 # PyBuilder
 target/
 
+# My stuff:
 .idea/
 key.token*
-
 *.orig
-
 *.db
-
 *.pid
 *.crt
 *.key
-jovabot/modules/lyrics/index*/
 *.pem
 *.seg
-modules/lyrics/index/MAIN_WRITELOCK
+modules/lyrics/index*/
 *.toc
