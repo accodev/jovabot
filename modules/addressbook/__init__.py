@@ -1,6 +1,7 @@
 # coding=utf-8
-from . import paginebianche
 import re
+
+from . import paginebianche
 
 
 def init():

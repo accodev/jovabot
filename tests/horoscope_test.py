@@ -1,5 +1,6 @@
 import unittest
-from jovabot.modules import horoscope
+
+from modules import horoscope
 
 
 class TestHoroscopeModule(unittest.TestCase):

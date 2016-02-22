@@ -1,7 +1,8 @@
 # coding=utf-8
 
 import unittest
-from jovabot.modules import learn
+
+from modules import learn
 
 
 class TestLearnModule(unittest.TestCase):

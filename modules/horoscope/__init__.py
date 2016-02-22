@@ -1,6 +1,7 @@
 # coding=utf-8
-from . import oroscopy
 import logging
+
+from . import oroscopy
 
 
 def init():

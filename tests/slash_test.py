@@ -1,7 +1,8 @@
 # coding=utf-8
 
 import unittest
-from jovabot.modules import slash
+
+from modules import slash
 
 
 class TestSlashModule(unittest.TestCase):

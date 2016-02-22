@@ -1,7 +1,8 @@
 # coding=utf-8
 
 import unittest
-from jovabot.modules import addressbook
+
+from modules import addressbook
 
 
 class TestAddressbookModule(unittest.TestCase):

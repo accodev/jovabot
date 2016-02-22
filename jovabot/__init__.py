@@ -1,26 +1,28 @@
 # coding=utf-8
 
-import os
-import io
+import atexit
+import codecs
+# noinspection PyUnresolvedReferences
+import modules  # this import is for uwsgi
 import importlib
-from . import modules
+import io
 import logging
+import os
 import socket
 import sys
-import codecs
+
 import telegram
 from flask import Flask, request
-from botanio import botan
-import atexit
 
+from botanio import botan
 
 # ordered by priority
 ENABLED_MODULES = [
-    'jovabot.modules.slash',
-    'jovabot.modules.horoscope',
-    'jovabot.modules.addressbook',
-    'jovabot.modules.lyrics',
-    'jovabot.modules.learn'
+    'modules.slash',
+    'modules.horoscope',
+    'modules.addressbook',
+    'modules.lyrics',
+    'modules.learn'
 ]
 
 LOADED_MODULES = []
@@ -35,7 +37,7 @@ try:
                         level=logging.DEBUG,
                         format='%(asctime)-15s|%(levelname)-8s|'
                                '%(process)d|%(name)s|%(module)s|%(message)s')
-except io.UnsupportedOperation as e:
+except (io.UnsupportedOperation, AttributeError) as e:
     print(e)
 
 
@@ -104,7 +106,7 @@ def jova_answer(message):
 
 def load_modules():
     for p in ENABLED_MODULES:
-        mod = importlib.import_module(p, 'jovabot.modules')
+        mod = importlib.import_module(p, 'modules')
         if mod:
             LOADED_MODULES.append(mod)
             logging.info('loaded module {0}'.format(mod))

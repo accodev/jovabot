@@ -14,7 +14,7 @@ def init():
 
 
 def get_answer(message):
-    if message[0] == '/':
+    if message.startswith('/'):
         return handle_slash_command(message[1:].split("@")[0])
     return None
 
@@ -25,7 +25,7 @@ def jova_about():
 
 def jova_help():
     package_directory = os.path.dirname(os.path.abspath(__file__))
-    help_path = os.path.join(package_directory, 'HELP.md')
+    help_path = os.path.join(package_directory, os.pardir, os.pardir, 'HELP.md')
     with open(help_path) as f:
         return f.read(), 'markdown'
 

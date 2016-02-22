@@ -35,17 +35,20 @@ else:
     HAVE_DICT_DB = False
 
 
+# noinspection PyMethodMayBeStatic
 class JovaLearnNone(object):
     def __init__(self):
         pass
 
     def jova_learn(self, tit, tat):
+        print('tit [{}] for tat[{}]'.format(tit, tat))
         return False
 
     def jova_keys(self):
         return None
 
     def jova_answer_for_key(self, key):
+        print('answer for [{}]'.format(key))
         return None
 
     def clear(self):

@@ -15,4 +15,4 @@ Questo bot rimpiazza tutte le 's' (e quando gli va', anche le 'z') con 'f' in tu
 
 La privacy non e' abilitata per questo bot, quindi ogni volta che il bot ricevera' un messaggio, verra' letto. E' stato implementato in questo modo per farlo comportare come una persona vera che risponde ai messaggi.
 
-Vedere [HELP.md](jovabot/modules/slash/HELP.md) per le istruzioni.
+Vedere [HELP.md](HELP.md) per le istruzioni.

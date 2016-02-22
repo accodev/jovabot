@@ -68,3 +68,6 @@ key.token*
 *.key
 jovabot/modules/lyrics/index*/
 *.pem
+*.seg
+modules/lyrics/index/MAIN_WRITELOCK
+*.toc
