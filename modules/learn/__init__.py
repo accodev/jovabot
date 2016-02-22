@@ -202,7 +202,7 @@ def init():
 def get_answer(message):
     if message.startswith('/'):
         return None
-
+    logging.debug('{} :: message [{}]'.format(__file__, message))
     if 'se ti dico' in message and '/':
         return jova_learn(message)
     else:
@@ -212,10 +212,12 @@ def get_answer(message):
 def jova_answer_learned(message):
     rx = r'jova,?\s(.+)$'
     m = re.match(rx, message)
+    logging.debug('message [{}] :: match [{}]'.format(message, m))
     if not m:
         return None
     try:
         k = m.groups(1)[0]
+        logging.debug('key => [{}]'.format(k))
         return jova_fuzzy_answer(k)
     except:
         logging.exception('jova_answer_learned error')
@@ -233,7 +235,7 @@ def jova_learn(message):
     tokens = m.groups(1)
     if len(tokens) == 2 and len(tokens[0]) > 3:
         try:
-            logging.info('learning to answer {0} to the trigger {1}'
+            logging.info('learning to answer [{0}] to the trigger [{1}]'
                          .format(tokens[1], tokens[0]))
             impl.jova_learn(tokens[0], tokens[1])
             # file_id = BQADBAADkgADwThpBr2dKDwqptsXAg - SAITAMA_OK
@@ -246,11 +248,12 @@ def jova_learn(message):
 def jova_fuzzy_answer(key):
     keys = impl.jova_keys()
     choosen_key = process.extractOne(key, keys)
+    logging.debug('choosen_key => [{}]'.format(choosen_key))
     if choosen_key:
-        if choosen_key[1] < 80:
-            logging.warning('found a key which is **almost** the requested[{0}] - found[{1}]'
-                            .format(key, choosen_key[0]))
-        return impl.jova_answer_for_key(choosen_key[0])
+        if choosen_key[1] > 80:
+            return impl.jova_answer_for_key(choosen_key[0])
+        else:
+            logging.warning('no close match for the provided key[{}]'.format(key))
     return None
 
 

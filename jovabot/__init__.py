@@ -36,7 +36,7 @@ try:
     logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)],
                         level=logging.DEBUG,
                         format='%(asctime)-15s|%(levelname)-8s|'
-                               '%(process)d|%(name)s|%(module)s|%(message)s')
+                               '%(process)d|%(name)s|%(module)s|%(funcName)s::%(lineno)d|%(message)s')
 except (io.UnsupportedOperation, AttributeError) as e:
     print(e)
 
@@ -75,7 +75,7 @@ def jova_do_something(message):
                     answer = answer[0]  # don't jovaize!
                 bot.sendChatAction(chat_id=chat_id,
                                    action=telegram.ChatAction.TYPING)
-                # markdown-formatted messsage?
+                # markdown-formatted message?
                 parse_mode = None
                 if 'markdown' in formatting:
                     parse_mode = telegram.ParseMode.MARKDOWN
@@ -98,9 +98,14 @@ def jova_do_something(message):
 
 def jova_answer(message):
     for mod in LOADED_MODULES:
+        module_name = mod.__name__
+        logging.info('querying {}...'.format(module_name))
         answer = mod.get_answer(message)
-        if answer:
+        if answer and isinstance(answer, tuple) and answer[0]:
+            logging.info('answer from {}...'.format(module_name))
             return answer
+        else:
+            logging.info('no answer from {}...'.format(module_name))
     return None
 
 
