@@ -156,6 +156,8 @@ class JovaLearnDict(object):
         self.learned = {}
 
     def jova_learn(self, tit, tat):
+        if not self.learned.get(tit):
+            self.learned[tit] = []
         self.learned[tit].append(tat)
 
     def jova_keys(self):

@@ -1,6 +1,7 @@
 # coding=utf-8
 
 import os
+import io
 import importlib
 from . import modules
 import logging
@@ -27,13 +28,15 @@ LOADED_MODULES = []
 bot = None
 webapp = Flask(__name__)
 
-if os.name != 'nt':
-    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
-
-logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)],
-                    level=logging.DEBUG,
-                    format='%(asctime)-15s|%(levelname)-8s|'
-                           '%(process)d|%(name)s|%(module)s|%(message)s')
+try:
+    if os.name != 'nt':
+        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+    logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)],
+                        level=logging.DEBUG,
+                        format='%(asctime)-15s|%(levelname)-8s|'
+                               '%(process)d|%(name)s|%(module)s|%(message)s')
+except io.UnsupportedOperation as e:
+    print(e)
 
 
 def extract_token(filename):
