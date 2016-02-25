@@ -247,6 +247,7 @@ def jova_learn(message):
 
 def jova_fuzzy_answer(key):
     keys = impl.jova_keys()
+    random.shuffle(keys)
     choosen_key = process.extractOne(key, keys)
     logging.debug('choosen_key => [{}]'.format(choosen_key))
     if choosen_key:
