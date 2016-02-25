@@ -176,7 +176,10 @@ def channel_update(secret):
     if secret == webapp.config['CHANNEL_UPDATE_TOKEN']:
         update = request.get_json(force=True)
         logging.debug(update)
-        bot.sendMessage(chat_id='@jovanottibot_updates', text='update')
+        update_text = ''
+        for c in update.get('commits'):
+            update_text = c.get('message') + '\n'
+        bot.sendMessage(chat_id='@jovanottibot_updates', text=update_text)
     return 'ko', 403
 
 
