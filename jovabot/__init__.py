@@ -171,6 +171,15 @@ def webhook_delete():
     return res
 
 
+@webapp.route('/channel-update/<secret>')
+def channel_update(secret):
+    if secret == webapp.config['CHANNEL_UPDATE_TOKEN']:
+        update = request.get_json(force=True)
+        logging.debug(update)
+        bot.sendMessage(chat_id='@jovanottibot_updates', text='update')
+    return 'ko', 403
+
+
 def gtfo():
     logging.info('stopping')
 
@@ -210,6 +219,13 @@ def config():
     except (OSError, KeyError):  # socket.gethostname() could possibly return an exception whose base class is OSError
         logging.exception('failed to set BASE_ADDRESS')
         webapp.config['BASE_ADDRESS'] = 0
+
+    # channel update secret token
+    try:
+        webapp.config['CHANNEL_UPDATE_TOKEN'] = os.environ['CHANNEL_UPDATE_TOKEN']
+    except (OSError, KeyError):
+        logging.exception('failed to get CHANNEL_UPDATE_TOKEN')
+        webapp.config['CHANNEL_UPDATE_TOKEN'] = 0
 
 
 @webapp.before_first_request
