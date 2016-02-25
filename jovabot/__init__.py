@@ -171,15 +171,19 @@ def webhook_delete():
     return res
 
 
-@webapp.route('/channel-update/<secret>')
+@webapp.route('/channel-update/<secret>', methods=['POST'])
 def channel_update(secret):
+    logging.info('secret received is [{}]'.format(secret == webapp.config['CHANNEL_UPDATE_TOKEN']))
     if secret == webapp.config['CHANNEL_UPDATE_TOKEN']:
-        update = request.get_json(force=True)
+        logging.debug(request.data)
+        update = request.get_json()
         logging.debug(update)
-        update_text = ''
-        for c in update.get('commits'):
-            update_text = c.get('message') + '\n'
-        bot.sendMessage(chat_id='@jovanottibot_updates', text=update_text)
+        if update:
+            update_text = ''
+            for c in update.get('commits'):
+                update_text = c.get('message') + '\n'
+            bot.sendMessage(chat_id='@jovanottibot_updates', text=update_text)
+        return 'ok', 200    
     return 'ko', 403
 
 
@@ -218,7 +222,7 @@ def config():
 
     # jovabot base address
     try:
-        webapp.config['BASE_ADDRESS'] = socket.gethostname() + '/' + os.environ['JOVABOT_WEBAPP_NAME']
+        webapp.config['BASE_ADDRESS'] = 'https://' + socket.gethostname() + '/' + os.environ['JOVABOT_WEBAPP_NAME']
     except (OSError, KeyError):  # socket.gethostname() could possibly return an exception whose base class is OSError
         logging.exception('failed to set BASE_ADDRESS')
         webapp.config['BASE_ADDRESS'] = 0
