@@ -10,6 +10,8 @@ import logging
 import os
 import socket
 import sys
+import json
+import datetime
 
 import telegram
 from flask import Flask, request
@@ -175,14 +177,17 @@ def webhook_delete():
 def channel_update(secret):
     logging.info('secret received is [{}]'.format(secret == webapp.config['CHANNEL_UPDATE_TOKEN']))
     if secret == webapp.config['CHANNEL_UPDATE_TOKEN']:
-        logging.debug(request.data)
-        update = request.get_json()
-        logging.debug(update)
-        if update:
-            update_text = ''
-            for c in update.get('commits'):
-                update_text = c.get('message') + '\n'
-            bot.sendMessage(chat_id='@jovanottibot_updates', text=update_text)
+        raw_channel_update = request.get_json()
+        logging.debug(raw_channel_update)
+        if raw_channel_update:
+            update = json.loads(raw_channel_update)
+            update_text = '*CHANGELOG @ {}*\n'.format(update['head_commit']['timestamp'])
+            for c in update['commits']:
+                update_text += '\n'
+                update_text += '*{}*\n'.format(c['message'])
+                update_text += '_{} committed on {}_\n'.format(c['committer']['username'], c['timestamp'])
+                update_text += '\n'
+            bot.sendMessage(chat_id='@jovanottibot_updates', text=update_text, parse_mode=telegram.ParseMode.MARKDOWN)
         return 'ok', 200    
     return 'ko', 403
 
