@@ -68,3 +68,4 @@ key.token*
 *.seg
 modules/lyrics/index*/
 *.toc
+*.gz
