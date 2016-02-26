@@ -1,5 +1,7 @@
 I messaggi a cui rispondera' il buon jova dovranno sempre contenere `jova` nella frase, fatta eccezione per i comandi speciali `/help` e `/about`.
 
+Per consultare aggiornamenti relativi a questo bot andate [qua](https://telegram.me/jovanottibot_updates).
+
 In breve i comandi principali che potete impartire al bot:
 
 1. `Jova se ti dico CONDIZIONE tu rispondi RISPOSTA_ALLA_CONDIZIONE`:
