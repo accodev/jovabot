@@ -1,25 +1,30 @@
 # coding=utf-8
 
-import os
+import atexit
+import codecs
+# noinspection PyUnresolvedReferences
+import modules  # this import is for uwsgi
 import importlib
-from . import modules
+import io
 import logging
+import os
 import socket
 import sys
-import codecs
+import json
+import datetime
+
 import telegram
 from flask import Flask, request
-from botanio import botan
-import atexit
 
+from botanio import botan
 
 # ordered by priority
 ENABLED_MODULES = [
-    'jovabot.modules.slash',
-    'jovabot.modules.horoscope',
-    'jovabot.modules.addressbook',
-    'jovabot.modules.lyrics',
-    'jovabot.modules.learn'
+    'modules.slash',
+    'modules.horoscope',
+    'modules.addressbook',
+    'modules.lyrics',
+    'modules.learn'
 ]
 
 LOADED_MODULES = []
@@ -27,13 +32,15 @@ LOADED_MODULES = []
 bot = None
 webapp = Flask(__name__)
 
-if os.name != 'nt':
-    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
-
-logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)],
-                    level=logging.DEBUG,
-                    format='%(asctime)-15s|%(levelname)-8s|'
-                           '%(process)d|%(name)s|%(module)s|%(message)s')
+try:
+    if os.name != 'nt':
+        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+    logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)],
+                        level=logging.DEBUG,
+                        format='%(asctime)-15s|%(levelname)-8s|'
+                               '%(process)d|%(name)s|%(module)s|%(funcName)s::%(lineno)d|%(message)s')
+except (io.UnsupportedOperation, AttributeError) as e:
+    print(e)
 
 
 def extract_token(filename):
@@ -70,7 +77,7 @@ def jova_do_something(message):
                     answer = answer[0]  # don't jovaize!
                 bot.sendChatAction(chat_id=chat_id,
                                    action=telegram.ChatAction.TYPING)
-                # markdown-formatted messsage?
+                # markdown-formatted message?
                 parse_mode = None
                 if 'markdown' in formatting:
                     parse_mode = telegram.ParseMode.MARKDOWN
@@ -93,15 +100,20 @@ def jova_do_something(message):
 
 def jova_answer(message):
     for mod in LOADED_MODULES:
+        module_name = mod.__name__
+        logging.info('querying {}...'.format(module_name))
         answer = mod.get_answer(message)
-        if answer:
+        if answer and isinstance(answer, tuple) and answer[0]:
+            logging.info('answer from {}...'.format(module_name))
             return answer
+        else:
+            logging.info('no answer from {}...'.format(module_name))
     return None
 
 
 def load_modules():
     for p in ENABLED_MODULES:
-        mod = importlib.import_module(p, 'jovabot.modules')
+        mod = importlib.import_module(p, 'modules')
         if mod:
             LOADED_MODULES.append(mod)
             logging.info('loaded module {0}'.format(mod))
@@ -161,6 +173,25 @@ def webhook_delete():
     return res
 
 
+@webapp.route('/channel-update/<secret>', methods=['POST'])
+def channel_update(secret):
+    logging.info('secret received is [{}]'.format(secret == webapp.config['CHANNEL_UPDATE_TOKEN']))
+    if secret == webapp.config['CHANNEL_UPDATE_TOKEN']:
+        raw_channel_update = request.get_json()
+        logging.debug(raw_channel_update)
+        if raw_channel_update:
+            update = json.loads(raw_channel_update)
+            update_text = '*CHANGELOG @ {}*\n'.format(update['head_commit']['timestamp'])
+            for c in update['commits']:
+                update_text += '\n'
+                update_text += '*{}*\n'.format(c['message'])
+                update_text += '_{} committed on {}_\n'.format(c['committer']['username'], c['timestamp'])
+                update_text += '\n'
+            bot.sendMessage(chat_id='@jovanottibot_updates', text=update_text, parse_mode=telegram.ParseMode.MARKDOWN)
+        return 'ok', 200    
+    return 'ko', 403
+
+
 def gtfo():
     logging.info('stopping')
 
@@ -196,10 +227,17 @@ def config():
 
     # jovabot base address
     try:
-        webapp.config['BASE_ADDRESS'] = socket.gethostname() + '/' + os.environ['JOVABOT_WEBAPP_NAME']
+        webapp.config['BASE_ADDRESS'] = 'https://' + socket.gethostname() + '/' + os.environ['JOVABOT_WEBAPP_NAME']
     except (OSError, KeyError):  # socket.gethostname() could possibly return an exception whose base class is OSError
         logging.exception('failed to set BASE_ADDRESS')
         webapp.config['BASE_ADDRESS'] = 0
+
+    # channel update secret token
+    try:
+        webapp.config['CHANNEL_UPDATE_TOKEN'] = os.environ['CHANNEL_UPDATE_TOKEN']
+    except (OSError, KeyError):
+        logging.exception('failed to get CHANNEL_UPDATE_TOKEN')
+        webapp.config['CHANNEL_UPDATE_TOKEN'] = 0
 
 
 @webapp.before_first_request

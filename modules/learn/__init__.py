@@ -3,6 +3,7 @@ import json
 import logging
 import random
 import re
+import os
 from fuzzywuzzy import process
 
 try:
@@ -27,18 +28,27 @@ try:
 except:
     HAVE_SHARED_AREA = False
 
+use_dict_db = os.environ.get('USE_DICT_DB')
+if use_dict_db and use_dict_db == '1':
+    HAVE_DICT_DB = True
+else:
+    HAVE_DICT_DB = False
 
+
+# noinspection PyMethodMayBeStatic
 class JovaLearnNone(object):
     def __init__(self):
         pass
 
     def jova_learn(self, tit, tat):
+        print('tit [{}] for tat[{}]'.format(tit, tat))
         return False
 
     def jova_keys(self):
         return None
 
     def jova_answer_for_key(self, key):
+        print('answer for [{}]'.format(key))
         return None
 
     def clear(self):
@@ -144,6 +154,28 @@ class JovaLearnRedis(object):
         return self.client.smembers(key)
 
 
+class JovaLearnDict(object):
+    def __init__(self):
+        self.learned = {}
+
+    def jova_learn(self, tit, tat):
+        if not self.learned.get(tit):
+            self.learned[tit] = []
+        self.learned[tit].append(tat)
+
+    def jova_keys(self):
+        return self.learned.keys()
+
+    def jova_answer_for_key(self, key):
+        return random.choice(self.learned.get(key))
+
+    def clear(self):
+        self.learned.clear()
+
+    def get_all(self, key):
+        return self.learned[key]
+
+
 impl = None
 
 
@@ -159,6 +191,9 @@ def init():
     elif HAVE_SHARED_AREA:
         impl = JovaLearnSharedMemory()
         logging.debug('learn module uses uwsgi shared area backend')
+    elif HAVE_DICT_DB:
+        impl = JovaLearnDict()
+        logging.debug('learn module uses dictionary backend')
     else:
         impl = JovaLearnNone()
         logging.debug('learn module not available')
@@ -167,7 +202,7 @@ def init():
 def get_answer(message):
     if message.startswith('/'):
         return None
-
+    logging.debug('{} :: message [{}]'.format(__file__, message))
     if 'se ti dico' in message and '/':
         return jova_learn(message)
     else:
@@ -177,10 +212,12 @@ def get_answer(message):
 def jova_answer_learned(message):
     rx = r'jova,?\s(.+)$'
     m = re.match(rx, message)
+    logging.debug('message [{}] :: match [{}]'.format(message, m))
     if not m:
         return None
     try:
         k = m.groups(1)[0]
+        logging.debug('key => [{}]'.format(k))
         return jova_fuzzy_answer(k)
     except:
         logging.exception('jova_answer_learned error')
@@ -198,7 +235,7 @@ def jova_learn(message):
     tokens = m.groups(1)
     if len(tokens) == 2 and len(tokens[0]) > 3:
         try:
-            logging.info('learning to answer {0} to the trigger {1}'
+            logging.info('learning to answer [{0}] to the trigger [{1}]'
                          .format(tokens[1], tokens[0]))
             impl.jova_learn(tokens[0], tokens[1])
             # file_id = BQADBAADkgADwThpBr2dKDwqptsXAg - SAITAMA_OK
@@ -210,12 +247,14 @@ def jova_learn(message):
 
 def jova_fuzzy_answer(key):
     keys = impl.jova_keys()
+    random.shuffle(keys)
     choosen_key = process.extractOne(key, keys)
+    logging.debug('choosen_key => [{}]'.format(choosen_key))
     if choosen_key:
-        if choosen_key[1] < 80:
-            logging.warning('found a key which is **almost** the requested[{0}] - found[{1}]'
-                            .format(key, choosen_key[0]))
-        return impl.jova_answer_for_key(choosen_key[0])
+        if choosen_key[1] > 80:
+            return impl.jova_answer_for_key(choosen_key[0])
+        else:
+            logging.warning('no close match for the provided key[{}]'.format(key))
     return None
 
 
