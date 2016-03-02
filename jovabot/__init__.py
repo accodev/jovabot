@@ -11,7 +11,6 @@ import os
 import socket
 import sys
 import json
-import datetime
 
 import telegram
 from flask import Flask, request
@@ -62,7 +61,7 @@ def jovaize(s):
 def jova_do_something(message):
     if message.text:
         # jova, I choose you!
-        if 'jova' in message.text.lower() or '/' in message.text[0]:
+        if 'jova' in message.text.lower() or message.startswith('/'):
             logging.info("[from {0}] [message ['{1}']]"
                          .format(str(message.from_user).encode('utf-8'),
                                  message.text.encode('utf-8')))
@@ -77,10 +76,6 @@ def jova_do_something(message):
                     answer = answer[0]  # don't jovaize!
                 bot.sendChatAction(chat_id=chat_id,
                                    action=telegram.ChatAction.TYPING)
-                # markdown-formatted message?
-                parse_mode = None
-                if 'markdown' in formatting:
-                    parse_mode = telegram.ParseMode.MARKDOWN
                 # are we handling a sticker?
                 if 'sticker' in formatting:
                     bot.sendSticker(chat_id=chat_id, reply_to_message_id=message.message_id, sticker=answer)
@@ -88,7 +83,7 @@ def jova_do_something(message):
                     # otherwise, send a normal message
                     bot.sendMessage(chat_id=chat_id, text=answer,
                                     reply_to_message_id=message.message_id,
-                                    parse_mode=parse_mode)
+                                    parse_mode=parse_mode(formatting))
                 # botan.io stats tracking
                 if webapp.config['BOTANIO_TOKEN']:
                     bt = botan.track(webapp.config['BOTANIO_TOKEN'],
@@ -96,6 +91,12 @@ def jova_do_something(message):
                                      message.text.lower())
                     if bt:
                         logging.info('botan.io track result: [{0}]'.format(bt))
+
+
+def parse_mode(formatting):
+    if 'markdown' in formatting:
+        return telegram.ParseMode.MARKDOWN
+    return None
 
 
 def jova_answer(message):
@@ -132,8 +133,8 @@ def telegram_hook(token):
 
         try:
             jova_do_something(update.message)
-        except:
-            logging.exception('Something broke')
+        except telegram.TelegramError:
+            logging.exception('Something broke on telegram')
 
         return "ok", 200
     else:
@@ -162,7 +163,8 @@ def webhook(command):
 
 
 def webhook_set():
-    webhook_url = '{0}/telegram/{1}'.format(str(webapp.config['BASE_ADDRESS']), str(webapp.config['TOKEN']))
+    webhook_url = '{base_address}/telegram/{token}'.format(base_address=str(webapp.config['BASE_ADDRESS']),
+                                                           token=str(webapp.config['TOKEN']))
     logging.debug(webhook_url)
     res = bot.setWebhook(webhook_url=webhook_url)
     return res
@@ -181,12 +183,12 @@ def channel_update(secret):
         logging.debug(raw_channel_update)
         if raw_channel_update:
             update = json.loads(raw_channel_update)
-            update_text = '*CHANGELOG @ {}*\n'.format(update['head_commit']['timestamp'])
+            update_text = '*CHANGELOG @ {ts}*\n'.format(update['head_commit']['timestamp'])
             for c in update['commits']:
-                update_text += '\n'
-                update_text += '*{}*\n'.format(c['message'])
-                update_text += '_{} committed on {}_\n'.format(c['committer']['username'], c['timestamp'])
-                update_text += '\n'
+                update_text = update_text.join('\n*{commit_message}*\n_{committer} committed on {date_of_commit}_\n'
+                                               .format(commit_message=c['message'],
+                                                       committer=c['committer']['username'],
+                                                       date_of_commit=c['timestamp']))
             bot.sendMessage(chat_id='@jovanottibot_updates', text=update_text, parse_mode=telegram.ParseMode.MARKDOWN)
         return 'ok', 200    
     return 'ko', 403
@@ -227,7 +229,8 @@ def config():
 
     # jovabot base address
     try:
-        webapp.config['BASE_ADDRESS'] = 'https://' + socket.gethostname() + '/' + os.environ['JOVABOT_WEBAPP_NAME']
+        webapp.config['BASE_ADDRESS'] = 'https://{hostname}/{appname}'.format(hostname=socket.gethostname(),
+                                                                              appname=os.environ['JOVABOT_WEBAPP_NAME'])
     except (OSError, KeyError):  # socket.gethostname() could possibly return an exception whose base class is OSError
         logging.exception('failed to set BASE_ADDRESS')
         webapp.config['BASE_ADDRESS'] = 0

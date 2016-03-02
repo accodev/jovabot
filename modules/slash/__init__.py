@@ -10,6 +10,7 @@ def init():
     slash_commands = {
         'about': jova_about,
         'help': jova_help,
+        'start': jova_help
     }
 
 
