@@ -1,0 +1,7 @@
+[run]
+source =
+    jovabot
+    modules
+
+[report]
+omit = tests/

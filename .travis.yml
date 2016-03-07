@@ -2,7 +2,11 @@ language: python
 python:
   - "3.4"
   - "3.5"
-install: "pip install -r reqs/test-requirements.txt"
+install:
+  - pip install coveralls
+  - pip install -r reqs/test-requirements.txt
 script: "py.test tests"
+after_success:
+  coveralls
 env:
   - USE_DICT_DB=1
