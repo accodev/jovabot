@@ -1,7 +1,7 @@
 [run]
 source =
-    jovabot
-    modules
+    jovabot/
+    modules/
 
 [report]
 omit = tests/
