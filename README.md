@@ -2,7 +2,7 @@
 
 ![ti tiro un faffo!](http://i.imgur.com/DHlVkqo.jpg)
 
-[![Code Climate](https://codeclimate.com/github/Shevraar/jovabot/badges/gpa.svg)](https://codeclimate.com/github/Shevraar/jovabot) [![Code Health](https://landscape.io/github/Shevraar/jovabot/develop/landscape.svg?style=flat)](https://landscape.io/github/Shevraar/jovabot/develop) [![Build Status](https://travis-ci.org/Shevraar/jovabot.svg?branch=develop)](https://travis-ci.org/Shevraar/jovabot)
+[![Code Climate](https://codeclimate.com/github/Shevraar/jovabot/badges/gpa.svg)](https://codeclimate.com/github/Shevraar/jovabot) [![Code Health](https://landscape.io/github/Shevraar/jovabot/develop/landscape.svg?style=flat)](https://landscape.io/github/Shevraar/jovabot/develop) [![Build Status](https://travis-ci.org/Shevraar/jovabot.svg?branch=develop)](https://travis-ci.org/Shevraar/jovabot) [![Coverage Status](https://coveralls.io/repos/github/Shevraar/jovabot/badge.svg?branch=develop)](https://coveralls.io/github/Shevraar/jovabot?branch=develop)
 
 ### Come aggiungerlo su telegram
 
