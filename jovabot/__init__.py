@@ -15,8 +15,6 @@ import json
 import telegram
 from flask import Flask, request
 
-from botanio import botan
-
 # ordered by priority
 ENABLED_MODULES = [
     'modules.slash',
@@ -59,9 +57,9 @@ def jovaize(s):
 
 
 def jova_do_something(message):
-    if message.text:
+    if message and message.text:
         # jova, I choose you!
-        if 'jova' in message.text.lower() or message.startswith('/'):
+        if 'jova' in message.text.lower() or message.text.startswith('/'):
             logging.info("[from {0}] [message ['{1}']]"
                          .format(str(message.from_user).encode('utf-8'),
                                  message.text.encode('utf-8')))
@@ -84,13 +82,6 @@ def jova_do_something(message):
                     bot.sendMessage(chat_id=chat_id, text=answer,
                                     reply_to_message_id=message.message_id,
                                     parse_mode=parse_mode(formatting))
-                # botan.io stats tracking
-                if webapp.config['BOTANIO_TOKEN']:
-                    bt = botan.track(webapp.config['BOTANIO_TOKEN'],
-                                     message.from_user, message.to_dict(),
-                                     message.text.lower())
-                    if bt:
-                        logging.info('botan.io track result: [{0}]'.format(bt))
 
 
 def parse_mode(formatting):
@@ -127,9 +118,10 @@ def init_modules():
 
 @webapp.route('/telegram/<token>', methods=['POST'])
 def telegram_hook(token):
+    global bot
     my_token = str(webapp.config['TOKEN'])
     if token == my_token:
-        update = telegram.Update.de_json(request.get_json(force=True))
+        update = telegram.Update.de_json(request.get_json(force=True), bot)
 
         try:
             jova_do_something(update.message)
@@ -166,7 +158,7 @@ def webhook_set():
     webhook_url = '{base_address}/telegram/{token}'.format(base_address=str(webapp.config['BASE_ADDRESS']),
                                                            token=str(webapp.config['TOKEN']))
     logging.debug(webhook_url)
-    res = bot.setWebhook(webhook_url=webhook_url)
+    res = bot.setWebhook(url=webhook_url)
     return res
 
 
@@ -220,16 +212,9 @@ def config():
         logging.exception('failed to get JOVABOT_CREATOR_CHAT_ID')
         webapp.config['CREATOR_CHAT_ID'] = 0
 
-    # botan.io api token
-    try:
-        webapp.config['BOTANIO_TOKEN'] = os.environ['BOTANIO_API_TOKEN']
-    except (OSError, KeyError):
-        logging.exception('failed to get BOTANIO_API_TOKEN')
-        webapp.config['BOTANIO_TOKEN'] = 0
-
     # jovabot base address
     try:
-        webapp.config['BASE_ADDRESS'] = 'https://{hostname}/{appname}'.format(hostname=socket.gethostname(),
+        webapp.config['BASE_ADDRESS'] = 'https://{hostname}/{appname}'.format(hostname=os.environ['JOVABOT_HOST_NAME'],
                                                                               appname=os.environ['JOVABOT_WEBAPP_NAME'])
     except (OSError, KeyError):  # socket.gethostname() could possibly return an exception whose base class is OSError
         logging.exception('failed to set BASE_ADDRESS')
